@@ -1,1 +1,1 @@
-mtm_alu_tb.sv
+alu_tb.sv
