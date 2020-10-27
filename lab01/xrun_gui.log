@@ -64,4 +64,19 @@ xcelium> file delete .reinvoke.sim
 xcelium> run
 Simulation complete via $finish(1) at time 4020 NS + 0
 ./alu_tb.sv:82 	$finish;
-xcelium> 
+xcelium> ^C
+xcelium> exit
+...Regained control from SimVision
+-------------------------------------
+See ./cov_work/scope/lab01/icc.com file for message(s) on coverage constant object marking
+
+coverage setup:
+  workdir  :  ./cov_work
+  dutinst  :  top(top)
+  scope    :  scope
+  testname :  lab01
+
+coverage files:
+  model(design data) :  ./cov_work/scope/icc_38ddb209_00000000.ucm
+  data               :  ./cov_work/scope/lab01/icc_38ddb209_00000000.ucd
+TOOL:	xrun	19.09-s003: Exiting on Oct 27, 2020 at 20:58:46 CET  (total: 00:12:09)
