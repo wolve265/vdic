@@ -1,4 +1,4 @@
-TOOL:	xrun	19.09-s003: Started on Oct 27, 2020 at 20:46:37 CET
+TOOL:	xrun	19.09-s003: Started on Oct 28, 2020 at 17:38:33 CET
 xrun
 	-f mtm_dut.f
 		mtm_Alu.vp
@@ -19,40 +19,6 @@ xrun
 	-covtest lab01
 	-l xrun_gui.log
 	-s
-Recompiling... reason: file './alu_tb.sv' is newer than expected.
-	expected: Tue Oct 27 20:40:28 2020
-	actual:   Tue Oct 27 20:46:25 2020
-file: alu_tb.sv
-	module worklib.top:sv
-		errors: 0, warnings: 0
-		Caching library 'worklib' ....... Done
-	Elaborating the design hierarchy:
-	Top level design units:
-		top
-
-	Extracting FSMs for coverage:
-		worklib.mtm_Alu
-		worklib.top
-	Total FSMs extracted = 0
-	Building instance overlay tables: .................... Done
-	Enabling instrumentation for coverage types: block expression FSM toggle functional
-	Generating native compiled code:
-		worklib.top:sv <0x00d5c99e>
-			streams:  12, words: 27323
-	Building instance specific data structures.
-	Performing constant object marking (COM) analysis.
-	Loading native compiled code:     .................... Done
-	Design hierarchy summary:
-		                 Instances  Unique
-		Modules:                 5       5
-		Registers:              91      91
-		Scalar wires:            7       -
-		Vectored wires:          2       -
-		Always blocks:          12      12
-		Initial blocks:          4       4
-		Pseudo assignments:      1       1
-		Simulation timescale:  1ps
-	Writing initial simulation snapshot: worklib.top:sv
 xcelium> 
 xcelium> source /cad/XCELIUM1909/tools/xcelium/files/xmsimrc
 xcelium> 
@@ -61,22 +27,23 @@ Relinquished control to SimVision...
 # Restoring simulation environment...
 xcelium> input -quiet .reinvoke.sim
 xcelium> file delete .reinvoke.sim
+xcelium> reset
+xmsim: *W,C58RST: Reset command executed. Coverage is enabled for the subsequent simulation run.  The coverage test name needs to be changed to prevent data overwrite, and any coverage control commands previously used must be reissued.
+Loaded snapshot worklib.top:sv
 xcelium> run
-Simulation complete via $finish(1) at time 4020 NS + 0
-./alu_tb.sv:82 	$finish;
+Simulation complete via $finish(1) at time 10640 NS + 0
+./alu_tb.sv:171 	$finish;
 xcelium> ^C
 xcelium> exit
-...Regained control from SimVision
--------------------------------------
-See ./cov_work/scope/lab01/icc.com file for message(s) on coverage constant object marking
+See ./cov_work/scope/test/icc.com file for message(s) on coverage constant object marking
 
 coverage setup:
   workdir  :  ./cov_work
   dutinst  :  top(top)
   scope    :  scope
-  testname :  lab01
+  testname :  test
 
 coverage files:
-  model(design data) :  ./cov_work/scope/icc_38ddb209_00000000.ucm
-  data               :  ./cov_work/scope/lab01/icc_38ddb209_00000000.ucd
-TOOL:	xrun	19.09-s003: Exiting on Oct 27, 2020 at 20:58:46 CET  (total: 00:12:09)
+  model(design data) :  ./cov_work/scope/icc_2765014b_00000000.ucm
+  data               :  ./cov_work/scope/test/icc_2765014b_00000000.ucd
+TOOL:	xrun	19.09-s003: Exiting on Oct 28, 2020 at 17:42:20 CET  (total: 00:03:47)

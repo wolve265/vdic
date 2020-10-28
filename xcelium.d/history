@@ -12,3 +12,7 @@ s7::(27Oct2020:19:23:48):( xrun +elaborate +sv -f /home/student/kcislo/VDIC/.dvt
 s8::(27Oct2020:19:31:10):( xrun +elaborate +sv -f /home/student/kcislo/VDIC/.dvt/lab01.build )
 s9::(27Oct2020:20:16:10):( xrun +elaborate +sv -f /home/student/kcislo/VDIC/.dvt/lab01.build )
 s10::(27Oct2020:20:16:26):( xrun +elaborate +sv -f /home/student/kcislo/VDIC/.dvt/lab01.build )
+s11::(28Oct2020:15:55:47):( xrun +elaborate +sv -f /home/student/kcislo/VDIC/.dvt/lab01.build )
+s12::(28Oct2020:17:03:05):( xrun +elaborate +sv -f /home/student/kcislo/VDIC/.dvt/lab01.build )
+s13::(28Oct2020:17:03:25):( xrun +elaborate +sv -f /home/student/kcislo/VDIC/.dvt/lab01.build )
+s14::(28Oct2020:17:31:14):( xrun +elaborate +sv -f /home/student/kcislo/VDIC/.dvt/lab01.build )

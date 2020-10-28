@@ -5,18 +5,29 @@ module top;
 //------------------------------------------------------------------------------
 
 typedef enum bit[2:0] {
-   	AND  = 3'b000,
-	OR = 3'b001,
-  	ADD = 3'b100,
-  	SUB = 3'b101
-} op_t;
+   	AND  		= 3'b000,
+	OR 			= 3'b001,
+  	ADD 		= 3'b100,
+  	SUB 		= 3'b101
+} alu_op_t;
 	
-typedef enum bit[1:0] {
-   	DATA  = 2'b00,
-	CTL = 2'b01,
-  	ERR = 2'b10
+typedef enum bit[2:0] {
+	GOOD		= 3'b000,
+	RST			= 3'b001,
+	BAD_OP		= 3'b010,
+	BAD_DATA	= 3'b011,
+	BAD_CRC		= 3'b100
+} test_op_t;
+	
+typedef enum bit {
+   	DATA  		= 1'b0,
+	CTL 		= 1'b1
 } packet_t;
 	
+typedef enum bit {
+	OK 			= 1'b0,
+	ERROR 		= 1'b1		
+} status_t;
 	
 	bit clk;
 	bit rst_n;
@@ -26,7 +37,6 @@ typedef enum bit[1:0] {
 //------------------------------------------------------------------------------
 // DUT instantiation
 //------------------------------------------------------------------------------
-
 
 mtm_Alu u_mtm_Alu (
 	.clk  (clk), //posedge active clock
@@ -57,8 +67,63 @@ end
 // Tester
 //------------------------------------------------------------------------------
 
-   
-//------------------------
+//-----------------------------------
+// Random data generation functions
+
+function alu_op_t get_alu_op();
+	bit [1:0] alu_op_choice;
+	alu_op_choice = $random;
+	case(alu_op_choice)
+		2'b00: return AND;
+		2'b01: return OR;
+		2'b10: return ADD;
+		2'b11: return SUB;
+	endcase
+endfunction
+
+function test_op_t get_test_op();
+	bit [2:0] test_op_choice;
+	test_op_choice = $random;
+	case(test_op_choice)
+		3'b000: return BAD_OP;
+		3'b001: return BAD_CRC;
+		3'b010: return BAD_DATA;
+		3'b011: return RST;
+		3'b100: return RST;
+		3'b101: return GOOD;
+		3'b110: return GOOD;
+		3'b111: return GOOD;
+	endcase
+endfunction
+
+function bit [31:0] get_data();
+	bit [1:0] zero_ones;
+	zero_ones = $random;
+	if(zero_ones == 2'b00)
+		return 32'h00_00_00_00;
+	else if(zero_ones == 2'b11)
+		return 32'hFF_FF_FF_FF;
+	else
+		return $random;
+endfunction
+
+//--------------------------
+// Crc4 computing function
+
+function bit [3:0] get_CRC4_d68(bit [67:0] d);
+	bit [3:0] c;
+	bit [3:0] crc;
+	
+	c = '0;
+	crc[0] = d[66] ^ d[64] ^ d[63] ^ d[60] ^ d[56] ^ d[55] ^ d[54] ^ d[53] ^ d[51] ^ d[49] ^ d[48] ^ d[45] ^ d[41] ^ d[40] ^ d[39] ^ d[38] ^ d[36] ^ d[34] ^ d[33] ^ d[30] ^ d[26] ^ d[25] ^ d[24] ^ d[23] ^ d[21] ^ d[19] ^ d[18] ^ d[15] ^ d[11] ^ d[10] ^ d[9] ^ d[8] ^ d[6] ^ d[4] ^ d[3] ^ d[0] ^ c[0] ^ c[2];
+    crc[1] = d[67] ^ d[66] ^ d[65] ^ d[63] ^ d[61] ^ d[60] ^ d[57] ^ d[53] ^ d[52] ^ d[51] ^ d[50] ^ d[48] ^ d[46] ^ d[45] ^ d[42] ^ d[38] ^ d[37] ^ d[36] ^ d[35] ^ d[33] ^ d[31] ^ d[30] ^ d[27] ^ d[23] ^ d[22] ^ d[21] ^ d[20] ^ d[18] ^ d[16] ^ d[15] ^ d[12] ^ d[8] ^ d[7] ^ d[6] ^ d[5] ^ d[3] ^ d[1] ^ d[0] ^ c[1] ^ c[2] ^ c[3];
+    crc[2] = d[67] ^ d[66] ^ d[64] ^ d[62] ^ d[61] ^ d[58] ^ d[54] ^ d[53] ^ d[52] ^ d[51] ^ d[49] ^ d[47] ^ d[46] ^ d[43] ^ d[39] ^ d[38] ^ d[37] ^ d[36] ^ d[34] ^ d[32] ^ d[31] ^ d[28] ^ d[24] ^ d[23] ^ d[22] ^ d[21] ^ d[19] ^ d[17] ^ d[16] ^ d[13] ^ d[9] ^ d[8] ^ d[7] ^ d[6] ^ d[4] ^ d[2] ^ d[1] ^ c[0] ^ c[2] ^ c[3];
+    crc[3] = d[67] ^ d[65] ^ d[63] ^ d[62] ^ d[59] ^ d[55] ^ d[54] ^ d[53] ^ d[52] ^ d[50] ^ d[48] ^ d[47] ^ d[44] ^ d[40] ^ d[39] ^ d[38] ^ d[37] ^ d[35] ^ d[33] ^ d[32] ^ d[29] ^ d[25] ^ d[24] ^ d[23] ^ d[22] ^ d[20] ^ d[18] ^ d[17] ^ d[14] ^ d[10] ^ d[9] ^ d[8] ^ d[7] ^ d[5] ^ d[3] ^ d[2] ^ c[1] ^ c[3];
+	return crc;
+	
+endfunction
+
+//--------------
 // Tester main
 
 initial begin : tester
@@ -66,39 +131,51 @@ initial begin : tester
    	bit [31:0] A;
 	bit [31:0] B;
 	bit [3:0] crc4;
-	op_t op;
+	alu_op_t alu_op;
+	test_op_t test_op;
 	
 	#20 rst_n = 1'b1;
 	#30;
-	//repeat(1000) begin :tester_loop
-		// A = getA();
-		// B = getB();
-		// op = getOP();
-		do_crc4({B, A, 1'b1, op}, crc4);
+	repeat(5) begin :tester_loop
+		alu_op = get_alu_op();
+		test_op = get_test_op();
+		A = get_data();
+		B = get_data();
+		crc4 = get_CRC4_d68({B, A, 1'b1, alu_op});
 		
-		send_serial(A,B,op,crc4);
-	//end : tester_loop
+		case(test_op)
+			BAD_CRC: begin : case_bad_crc
+				send_serial(A,B,alu_op,crc4+1);
+			end
+			BAD_DATA : begin : case_bad_data
+				bit [3:0] op_bit;
+				$cast(op_bit, alu_op);
+				send_ctl_packet({1'b0, op_bit, crc4});
+			end
+			BAD_OP : begin : case_bad_op
+				$cast(alu_op, test_op);
+				send_serial(A, B, alu_op, crc4);
+			end
+			RST: begin : case_rst
+				rst_n = 1'b0;
+				@(negedge clk);
+				rst_n = 1'b1;
+			end
+			default: begin : case_good
+				send_serial(A,B,alu_op,crc4);
+			end
+		endcase
+		#500;
+	end : tester_loop
 	#2000;
 	$finish;
 	
 end : tester
 
-task do_crc4(
-	input bit[67:0] d,
-	output bit [3:0] crc
-	);
-	bit [3:0] c;
-	c = '1;
-	crc[0] = d[66] ^ d[64] ^ d[63] ^ d[60] ^ d[56] ^ d[55] ^ d[54] ^ d[53] ^ d[51] ^ d[49] ^ d[48] ^ d[45] ^ d[41] ^ d[40] ^ d[39] ^ d[38] ^ d[36] ^ d[34] ^ d[33] ^ d[30] ^ d[26] ^ d[25] ^ d[24] ^ d[23] ^ d[21] ^ d[19] ^ d[18] ^ d[15] ^ d[11] ^ d[10] ^ d[9] ^ d[8] ^ d[6] ^ d[4] ^ d[3] ^ d[0] ^ c[0] ^ c[2];
-    crc[1] = d[67] ^ d[66] ^ d[65] ^ d[63] ^ d[61] ^ d[60] ^ d[57] ^ d[53] ^ d[52] ^ d[51] ^ d[50] ^ d[48] ^ d[46] ^ d[45] ^ d[42] ^ d[38] ^ d[37] ^ d[36] ^ d[35] ^ d[33] ^ d[31] ^ d[30] ^ d[27] ^ d[23] ^ d[22] ^ d[21] ^ d[20] ^ d[18] ^ d[16] ^ d[15] ^ d[12] ^ d[8] ^ d[7] ^ d[6] ^ d[5] ^ d[3] ^ d[1] ^ d[0] ^ c[1] ^ c[2] ^ c[3];
-    crc[2] = d[67] ^ d[66] ^ d[64] ^ d[62] ^ d[61] ^ d[58] ^ d[54] ^ d[53] ^ d[52] ^ d[51] ^ d[49] ^ d[47] ^ d[46] ^ d[43] ^ d[39] ^ d[38] ^ d[37] ^ d[36] ^ d[34] ^ d[32] ^ d[31] ^ d[28] ^ d[24] ^ d[23] ^ d[22] ^ d[21] ^ d[19] ^ d[17] ^ d[16] ^ d[13] ^ d[9] ^ d[8] ^ d[7] ^ d[6] ^ d[4] ^ d[2] ^ d[1] ^ c[0] ^ c[2] ^ c[3];
-    crc[3] = d[67] ^ d[65] ^ d[63] ^ d[62] ^ d[59] ^ d[55] ^ d[54] ^ d[53] ^ d[52] ^ d[50] ^ d[48] ^ d[47] ^ d[44] ^ d[40] ^ d[39] ^ d[38] ^ d[37] ^ d[35] ^ d[33] ^ d[32] ^ d[29] ^ d[25] ^ d[24] ^ d[23] ^ d[22] ^ d[20] ^ d[18] ^ d[17] ^ d[14] ^ d[10] ^ d[9] ^ d[8] ^ d[7] ^ d[5] ^ d[3] ^ d[2] ^ c[1] ^ c[3];
-endtask
-
 task send_serial(
 	input bit [31:0] A,
 	input bit [31:0] B,
-	input op_t op,
+	input alu_op_t op,
 	input bit [3:0] crc4
 	);
 	bit [3:0] op_bit;
@@ -133,37 +210,164 @@ task send_packet(
 		@(negedge clk) sin = d[i];
 	end
 endtask
+
 //------------------------------------------------------------------------------
 // Scoreboard
 //------------------------------------------------------------------------------
 
 initial begin : scoreboard
-	
-	packet_t packet_type;
-	op_t op_type;
+	status_t result;
+	//in
+	status_t in_status;
+	bit [31:0] A;
+	bit [31:0] B;
+	alu_op_t alu_op;
+	bit [3:0] crc4;
+	bit [3:0] in_crc4;
+	//out
+	status_t alu_status;
 	bit [31:0] C;
 	bit [3:0] flags;
 	bit [2:0] crc3;
 	bit [5:0] err_flags;
 	bit parity;
+	//predicted
+	status_t predicted_alu_status;
+	bit [31:0] predicted_C;
+	bit [3:0] predicted_flags;
+	bit [2:0] predicted_crc3;
+	bit [5:0] predicted_err_flags;
+	bit predicted_parity;
 	#50;
-	read_serial_out(packet_type, op_type, C, flags, crc3, err_flags, parity);
+	
+	//clear predictions
+	predicted_alu_status = OK;
+	predicted_C = '0;
+	predicted_flags = '0;
+	predicted_crc3 = '0;
+	predicted_err_flags = '0;
+	predicted_parity = '0;
+	
+	read_serial_in(in_status,A,B,alu_op,in_crc4);
+	
+	if(in_status == ERROR) begin : invalid_data
+		predicted_alu_status = in_status;
+		predicted_err_flags[5] = 1'b1;
+		predicted_err_flags[2:0] = predicted_err_flags[5:3];
+		predicted_parity = 1'b1;
+	end
+	else begin : valid_data
+		case(alu_op)
+			AND: begin : and_op
+				predicted_C = A&B;
+				crc4 = get_CRC4_d68({B, A, 1'b1, alu_op});
+			end
+			OR: begin : or_op
+				predicted_C = A|B;
+				crc4 = get_CRC4_d68({B, A, 1'b1, alu_op});
+			end
+			ADD: begin : add_op
+				predicted_C = A+B;
+				crc4 = get_CRC4_d68({B, A, 1'b1, alu_op});
+				predicted_flags[0] = predicted_C[31];//negative
+				predicted_flags[1] = (predicted_C == 0);//zero
+				predicted_flags[2] = 0;//overflow
+				predicted_flags[3] = 0;//carry
+			end
+			SUB: begin : sub_op
+				predicted_C = A-B;
+				crc4 = get_CRC4_d68({B, A, 1'b1, alu_op});
+			end
+			default: begin: invalid_op
+				predicted_alu_status = ERROR;
+				predicted_err_flags[3] = 1'b1;
+				predicted_err_flags[2:0] = predicted_err_flags[5:3];
+				predicted_parity = 1'b1;
+			end
+		endcase
+		if(in_crc4 != crc4) begin : invalid_crc
+			predicted_alu_status = ERROR;
+			predicted_err_flags[4] = 1'b1;
+			predicted_err_flags[2:0] = predicted_err_flags[5:3];
+			predicted_parity = 1'b1;
+		end
+	end
+
+	read_serial_out(alu_status, C, flags, crc3, err_flags, parity);
+	
+	if((predicted_alu_status == alu_status) && (alu_status == OK)) begin : alu_ok
+		if(predicted_C != C) begin : bad_data_match
+			result = ERROR;
+		end
+		else if(predicted_flags != flags) begin : bad_flags_match
+			result = ERROR;
+		end
+		/*else if(predicted_crc3 != crc3) begin : bad_crc3_match
+			result = ERRO;
+		end*/
+	end
+	else begin : alu_error
+		if((predicted_err_flags != err_flags) || (predicted_parity != parity)) begin : bad_error_match
+			result = ERROR;
+		end
+	end
 	
 end : scoreboard
 
+task read_serial_in(
+	output status_t in_status,
+	output bit [31:0] A,
+	output bit [31:0] B,
+	output alu_op_t alu_op,
+	output bit [3:0] crc4
+	);
+	
+	bit [7:0] temp_d [0:7];
+	packet_t packet_type;
+	
+	for(int i=7; i>=0; i--) begin : read_8_data_packets
+		read_packet(packet_type, temp_d[i]);
+		if(packet_type == CTL) begin : read_error_packet
+			in_status = ERROR;
+		end
+	end
+	
+	if(in_status == OK) begin : read_good_packets
+		B[31:24] = temp_d[7];
+		B[23:16] = temp_d[6];
+		B[15:8] = temp_d[5];
+		B[7:0] = temp_d[4];
+		A[31:24] = temp_d[3];
+		A[23:16] = temp_d[2];
+		A[15:8] = temp_d[1];
+		A[7:0] = temp_d[0];
+		read_packet(packet_type, temp_d[0]);
+		case(temp_d[0][6:4])
+			3'b000: alu_op = AND;
+			3'b001: alu_op = OR;
+			3'b100: alu_op = ADD;
+			3'b101: alu_op = SUB;
+		endcase
+		crc4 = temp_d[0][3:0];
+	end
+
+endtask
+
 task read_serial_out(
-	output packet_t packet_type,
-	output op_t op_type,
+	output status_t alu_status,
 	output bit [31:0] C,
 	output bit [3:0] flags,
 	output bit [2:0] crc3,
 	output bit [5:0] err_flags,
 	output bit parity
 	);
+	
 	bit [7:0] temp_d;
+	packet_t packet_type;
+	
 	read_packet(packet_type, temp_d);
 	if(packet_type == CTL) begin : read_error_packet
-		packet_type = ERR;
+		alu_status = ERROR;
 		err_flags = temp_d[6:1];
 		parity = temp_d[0];
 	end
