@@ -1,4 +1,4 @@
-TOOL:	xrun	19.09-s003: Started on Oct 29, 2020 at 16:06:40 CET
+TOOL:	xrun	19.09-s003: Started on Oct 29, 2020 at 20:20:53 CET
 xrun
 	-f mtm_dut.f
 		mtm_Alu.vp
@@ -20,8 +20,8 @@ xrun
 	-l xrun_gui.log
 	-s
 Recompiling... reason: file './alu_tb.sv' is newer than expected.
-	expected: Thu Oct 29 16:01:48 2020
-	actual:   Thu Oct 29 16:06:34 2020
+	expected: Thu Oct 29 20:19:09 2020
+	actual:   Thu Oct 29 20:20:48 2020
 file: alu_tb.sv
 	module worklib.top:sv
 		errors: 0, warnings: 0
@@ -37,20 +37,21 @@ file: alu_tb.sv
 	Building instance overlay tables: .................... Done
 	Enabling instrumentation for coverage types: block expression FSM toggle functional
 	Generating native compiled code:
-		worklib.top:sv <0x666aba67>
-			streams:  19, words: 63992
+		worklib.top:sv <0x40fbb44f>
+			streams:  30, words: 87238
 	Building instance specific data structures.
 	Performing constant object marking (COM) analysis.
 	Loading native compiled code:     .................... Done
 	Design hierarchy summary:
 		                 Instances  Unique
 		Modules:                 5       5
-		Registers:             131     131
+		Registers:             146     146
 		Scalar wires:            7       -
 		Vectored wires:          2       -
-		Always blocks:          12      12
-		Initial blocks:          4       4
+		Always blocks:          13      13
+		Initial blocks:          7       7
 		Pseudo assignments:      1       1
+		Covergroup Instances:    0       3
 		Simulation timescale:  1ps
 	Writing initial simulation snapshot: worklib.top:sv
 xcelium> 
@@ -63,5 +64,20 @@ xcelium> input -quiet .reinvoke.sim
 xcelium> file delete .reinvoke.sim
 xcelium> run
 Simulation complete via $finish(1) at time 3021560 NS + 0
-./alu_tb.sv:191 	$finish;
-xcelium> 
+./alu_tb.sv:444 	$finish;
+xcelium> ^C
+xcelium> exit
+...Regained control from SimVision
+-------------------------------------
+See ./cov_work/scope/lab01/icc.com file for message(s) on coverage constant object marking
+
+coverage setup:
+  workdir  :  ./cov_work
+  dutinst  :  top(top)
+  scope    :  scope
+  testname :  lab01
+
+coverage files:
+  model(design data) :  ./cov_work/scope/icc_01715c3f_732704b0.ucm
+  data               :  ./cov_work/scope/lab01/icc_01715c3f_732704b0.ucd
+TOOL:	xrun	19.09-s003: Exiting on Oct 29, 2020 at 20:48:14 CET  (total: 00:27:21)

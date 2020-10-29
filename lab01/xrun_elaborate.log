@@ -1,4 +1,4 @@
-TOOL:	xrun	19.09-s003: Started on Oct 29, 2020 at 10:35:27 CET
+TOOL:	xrun	19.09-s003: Started on Oct 29, 2020 at 20:44:04 CET
 xrun
 	-elaborate
 	-l xrun_elaborate.log
@@ -10,9 +10,7 @@ xrun
 	+nowarnDSEM2009
 	+nowarnDSEMEL
 	+nowarnCGDEFN
-	-xmlibdirname INCA_libs_gui
-	+access+r
-	+gui
+	-xmlibdirname INCA_libs
 	+overwrite
 	-nocopyright
 	-coverage all
@@ -30,23 +28,24 @@ xrun
 	Building instance overlay tables: .................... Done
 	Enabling instrumentation for coverage types: block expression FSM toggle functional
 	Generating native compiled code:
-			streams:   7, words:  4287
-			streams:   9, words: 28418
-			streams:   7, words:  3741
-		worklib.top:sv <0x31477047>
-			streams:  16, words: 48490
+			streams:   7, words:  3972
+			streams:   9, words: 25661
+			streams:   7, words:  3321
+		worklib.top:sv <0x5c13c426>
+			streams:  30, words: 89380
 	Building instance specific data structures.
 	Performing constant object marking (COM) analysis.
 	Loading native compiled code:     .................... Done
 	Design hierarchy summary:
 		                 Instances  Unique
 		Modules:                 5       5
-		Registers:             120     120
+		Registers:             146     146
 		Scalar wires:            7       -
 		Vectored wires:          2       -
-		Always blocks:          12      12
-		Initial blocks:          4       4
+		Always blocks:          13      13
+		Initial blocks:          7       7
 		Pseudo assignments:      1       1
+		Covergroup Instances:    0       3
 		Simulation timescale:  1ps
 	Writing initial simulation snapshot: worklib.top:sv
-TOOL:	xrun	19.09-s003: Exiting on Oct 29, 2020 at 10:35:27 CET  (total: 00:00:00)
+TOOL:	xrun	19.09-s003: Exiting on Oct 29, 2020 at 20:44:05 CET  (total: 00:00:01)

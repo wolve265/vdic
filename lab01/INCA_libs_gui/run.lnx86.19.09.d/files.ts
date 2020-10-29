@@ -1,2 +1,2 @@
 1603903599 /home/student/kcislo/VDIC/lab01/mtm_Alu.vp
-1603983994 /home/student/kcislo/VDIC/lab01/alu_tb.sv
+1603999248 /home/student/kcislo/VDIC/lab01/alu_tb.sv

@@ -4,7 +4,7 @@
 # -g option starts xrun simulation with gui, with separate database
 
 # To set the paths for xrun and imc, execute the following command in the terminal:
-source /cad/env/cadence_path.XCELIUM1909
+# source /cad/env/cadence_path.XCELIUM1909
 
 # Help library if available with command:
 # cdnshelp &
@@ -18,7 +18,7 @@ function main(){
   xrun_compile
   xrun_elaborate
   xrun_run_all_tests
-#  run_imc
+  run_imc
 }
 #------------------------------------------------------------------------------
 # local variables#<<<

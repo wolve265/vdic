@@ -1,4 +1,4 @@
-TOOL:	xrun	19.09-s003: Started on Oct 27, 2020 at 19:31:51 CET
+TOOL:	xrun	19.09-s003: Started on Oct 29, 2020 at 20:44:05 CET
 xrun
 	-f mtm_dut.f
 		mtm_Alu.vp
@@ -19,8 +19,8 @@ xrun
 Loading snapshot worklib.top:sv .................... Done
 xcelium> source /cad/XCELIUM1909/tools/xcelium/files/xmsimrc
 xcelium> run
-Simulation complete via $finish(1) at time 1982040 NS + 0
-./alu_tb.sv:81 	$finish;
+Simulation complete via $finish(1) at time 3021560 NS + 0
+./alu_tb.sv:470 	$finish;
 xcelium> exit
 See ./cov_work/scope/lab01/icc.com file for message(s) on coverage constant object marking
 
@@ -31,6 +31,6 @@ coverage setup:
   testname :  lab01
 
 coverage files:
-  model(design data) :  ./cov_work/scope/icc_2eb26bbb_00000000.ucm
-  data               :  ./cov_work/scope/lab01/icc_2eb26bbb_00000000.ucd
-TOOL:	xrun	19.09-s003: Exiting on Oct 27, 2020 at 19:31:52 CET  (total: 00:00:01)
+  model(design data) :  ./cov_work/scope/icc_07da6790_45f6c167.ucm
+  data               :  ./cov_work/scope/lab01/icc_07da6790_45f6c167.ucd
+TOOL:	xrun	19.09-s003: Exiting on Oct 29, 2020 at 20:44:05 CET  (total: 00:00:00)
