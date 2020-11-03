@@ -24,11 +24,12 @@ module scoreboard(alu_bfm bfm);
 		bit [2:0] predicted_crc3;
 		bit [5:0] predicted_err_flags;
 		bit predicted_parity;
-	
+		
+		result = OK;
 		
 		//clear predictions
 		repeat(1000) begin : score_loop
-			result = OK;
+			
 			predicted_alu_status = OK;
 			predicted_C = '0;
 			predicted_flags = '0;
@@ -123,6 +124,8 @@ module scoreboard(alu_bfm bfm);
 		else begin
 			$display("FAILED");
 		end
+		
+		#500;
 		
 	end : scoreboard_core
 	
