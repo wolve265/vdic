@@ -1,6 +1,14 @@
 module scoreboard(alu_bfm bfm);
 	import alu_pkg::*;
 	
+	integer counter = 1002;
+	
+	always@(posedge bfm.clk) begin
+		if(bfm.rst_n == 1'b0) begin
+			counter--;
+		end
+	end
+	
 	initial begin : scoreboard_core
 		status_t result;
 		//in
@@ -24,11 +32,10 @@ module scoreboard(alu_bfm bfm);
 		bit [2:0] predicted_crc3;
 		bit [5:0] predicted_err_flags;
 		bit predicted_parity;
-		
+
 		result = OK;
-		
 		//clear predictions
-		repeat(1000) begin : score_loop
+		while(counter != 0) begin : score_loop
 			
 			predicted_alu_status = OK;
 			predicted_C = '0;
@@ -37,7 +44,6 @@ module scoreboard(alu_bfm bfm);
 			predicted_err_flags = '0;
 			predicted_parity = '0;
 		
-			
 			bfm.read_serial_in(in_status,in_A,in_B,in_alu_op,in_crc4);
 			
 			if(in_status == ERROR) begin : invalid_data
@@ -96,7 +102,7 @@ module scoreboard(alu_bfm bfm);
 					predicted_parity = 1'b1;
 				end
 			end
-		
+			
 			bfm.read_serial_out(alu_status,C,flags,crc3,err_flags, parity);
 			
 			if((predicted_alu_status == alu_status) && (alu_status == OK)) begin : alu_ok
@@ -116,8 +122,10 @@ module scoreboard(alu_bfm bfm);
 				end
 			end
 			#200;
+			counter--;
+			
 		end : score_loop
-		
+
 		if(result == OK) begin
 			$display("PASSED");
 		end

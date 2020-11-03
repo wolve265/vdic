@@ -84,7 +84,7 @@ module tester(alu_bfm bfm);
 			endcase
 			#1500;
 		end : tester_loop
-		#20000;
+		#2000;
 		$finish;
 	end	: tester_core
 endmodule : tester

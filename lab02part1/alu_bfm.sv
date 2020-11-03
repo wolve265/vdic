@@ -3,7 +3,7 @@ interface alu_bfm;
 	
 	bit clk;
 	bit rst_n;
-	bit sin;
+	bit sin = 1;
 	bit sout;
 	
 	initial begin : clk_gen
