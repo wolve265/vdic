@@ -58,41 +58,6 @@ class square extends rectangle;
 	
 endclass : square
 
-class shape_factory;
-	
-	static function shape make_shape(string shape_type, real w, real h);
-		
-		rectangle rectangle_h;
-		square square_h;
-		triangle triangle_h;
-		
-		case(shape_type)
-			
-			"rectangle": begin : rectangle
-				rectangle_h = new(w, h);
-				return rectangle_h;
-			end : rectangle
-			
-			"square": begin : square
-				square_h = new(w);
-				return square_h;
-			end : square
-			
-			"triangle": begin : triangle
-				triangle_h = new(w, h);
-				return triangle_h;
-			end : triangle
-			
-			default: begin : error
-				$fatal(1, "No such shape: ", shape_type);
-			end : error	
-			
-		endcase // shape_type
-		
-	endfunction : make_shape
-	
-endclass : shape_factory
-
 class shape_reporter #(type T = shape);
 	
 	protected static T shape_storage[$];
@@ -112,6 +77,44 @@ class shape_reporter #(type T = shape);
 	
 endclass : shape_reporter
 
+class shape_factory;
+	
+	static function shape make_shape(string shape_type, real w, real h);
+		
+		rectangle rectangle_h;
+		square square_h;
+		triangle triangle_h;
+		
+		case(shape_type)
+			
+			"rectangle": begin : rectangle
+				rectangle_h = new(w, h);
+				shape_reporter#(rectangle)::add_shape(rectangle_h);
+				return rectangle_h;
+			end : rectangle
+			
+			"square": begin : square
+				square_h = new(w);
+				shape_reporter#(square)::add_shape(square_h);
+				return square_h;
+			end : square
+			
+			"triangle": begin : triangle
+				triangle_h = new(w, h);
+				shape_reporter#(triangle)::add_shape(triangle_h);
+				return triangle_h;
+			end : triangle
+			
+			default: begin : error
+				$fatal(1, "No such shape: ", shape_type);
+			end : error	
+			
+		endcase // shape_type
+		
+	endfunction : make_shape
+	
+endclass : shape_factory
+
 module top;
 	
 	initial begin : top_core
@@ -130,15 +133,6 @@ module top;
 		while ($fscanf(file_d, "%s %g %g", shape_type, w, h) == 3) begin : read_file_loop
 		
 			shape_h = shape_factory::make_shape(shape_type, w, h);
-			
-			if($cast(square_h, shape_h))
-				shape_reporter#(square)::add_shape(square_h);
-			else if($cast(rectangle_h, shape_h))
-				shape_reporter#(rectangle)::add_shape(rectangle_h);
-			else if($cast(triangle_h, shape_h))
-				shape_reporter#(triangle)::add_shape(triangle_h);
-			else
-				$fatal(1, "Failed to cast shape");
 			
 		end : read_file_loop
 		
