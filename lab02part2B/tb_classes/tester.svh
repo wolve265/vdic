@@ -1,10 +1,12 @@
-module tester(alu_bfm bfm);
-	import alu_pkg::*;
+class tester;
 	
-	//-----------------------------------
-	// Random data generation functions
+	virtual alu_bfm bfm;
 	
-	function alu_op_t get_alu_op();
+	function new(virtual alu_bfm b);
+		bfm = b;
+	endfunction : new
+	
+	protected function alu_op_t get_alu_op();
 		bit [1:0] alu_op_choice;
 		alu_op_choice = $random;
 		case(alu_op_choice)
@@ -13,9 +15,9 @@ module tester(alu_bfm bfm);
 			2'b10: return ADD;
 			2'b11: return SUB;
 		endcase
-	endfunction
+	endfunction : get_alu_op
 	
-	function test_op_t get_test_op();
+	protected function test_op_t get_test_op();
 		bit [3:0] test_op_choice;
 		test_op_choice = $random;
 		case(test_op_choice)
@@ -36,9 +38,9 @@ module tester(alu_bfm bfm);
 			4'b1110: return GOOD;
 			4'b1111: return GOOD;
 		endcase
-	endfunction
-	
-	function bit [31:0] get_data();
+	endfunction : get_test_op
+
+	protected function bit [31:0] get_data();
 		bit [1:0] zero_ones;
 		zero_ones = $random;
 		if(zero_ones == 2'b00)
@@ -47,18 +49,19 @@ module tester(alu_bfm bfm);
 			return 32'hFF_FF_FF_FF;
 		else
 			return $random;
-	endfunction
+	endfunction : get_data
 	
-	initial begin : tester_core
+	task execute();
 		bit [31:0] A;
 		bit [31:0] B;
 		bit [3:0] crc4;
 		alu_op_t alu_op;
 		test_op_t test_op;
+		integer counter = 1000;
 		
 		bfm.do_rst();
-		repeat(1000) begin : tester_loop
-			
+		while(counter != 0) begin : tester_loop
+			counter--;
 			alu_op = get_alu_op();
 			test_op = get_test_op();
 			A = get_data();
@@ -76,6 +79,7 @@ module tester(alu_bfm bfm);
 					bfm.send_serial(A,B,UNKNOWN,crc4);
 				end
 				RST: begin : case_rst
+					counter++;
 					bfm.do_rst();
 				end
 				default: begin : case_good
@@ -86,5 +90,6 @@ module tester(alu_bfm bfm);
 		end : tester_loop
 		#2000;
 		$finish;
-	end	: tester_core
-endmodule : tester
+	endtask : execute
+	
+endclass : tester

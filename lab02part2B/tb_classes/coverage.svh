@@ -1,18 +1,17 @@
-module coverage(alu_bfm bfm);
-	import alu_pkg::*;
+class coverage;
 	
-	alu_op_t cp_alu_op;
-	test_op_t cp_test_op;
-	bit[31:0] cp_A;
-	bit[31:0] cp_B;
-	bit rst_before;
-	bit cp_carry;
-	bit cp_overflow;
-	bit cp_zero;
-	bit cp_negative;
+	virtual alu_bfm bfm;
+	protected alu_op_t cp_alu_op;
+	protected test_op_t cp_test_op;
+	protected bit[31:0] cp_A;
+	protected bit[31:0] cp_B;
+	protected bit rst_before;
+	protected bit cp_carry;
+	protected bit cp_overflow;
+	protected bit cp_zero;
+	protected bit cp_negative;
 		
-	status_t answer;
-	status_t sample = ERROR;
+	protected status_t answer;
 	
 	covergroup op_cov;
 		
@@ -178,7 +177,35 @@ module coverage(alu_bfm bfm);
 		
 	endgroup
 	
-	initial begin : result_predict
+	function new(virtual alu_bfm b);
+		op_cov = new();
+		error_cov = new();
+		zero_ones_cov = new();
+		bfm = b;
+	endfunction : new
+	
+	protected task monitor_rst();
+		forever begin
+			@(posedge bfm.clk)
+			if(bfm.rst_n == 1'b0) begin
+				rst_before = 1'b1;
+			end
+		end
+	endtask : monitor_rst
+	
+	protected task coverage_sample();
+		if(answer == ERROR) begin
+			error_cov.sample();
+		end
+		else begin
+			op_cov.sample();
+			zero_ones_cov.sample();
+		end
+		@(negedge bfm.clk);
+		rst_before = 1'b0;
+	endtask : coverage_sample
+	
+	task execute();
 		//in
 		status_t in_status;
 		bit [3:0] crc4;
@@ -186,9 +213,12 @@ module coverage(alu_bfm bfm);
 		//predicted
 		bit [31:0] predicted_C;
 	
-		//clear predictions
-		repeat(1000) begin : result_predict_loop
-			sample = ERROR;
+		fork
+			monitor_rst();
+		join_none 
+		
+		forever begin : result_predict_loop
+			//clear predictions
 			predicted_C = '0;
 			cp_carry = 1'b0;
 			cp_overflow = 1'b0;
@@ -245,40 +275,10 @@ module coverage(alu_bfm bfm);
 					answer = ERROR;
 				end
 			end
-			sample = OK;
+			coverage_sample();
 			@(negedge bfm.clk);
 		end : result_predict_loop
-		
-	end : result_predict
+
+	endtask : execute
 	
-	always@(posedge bfm.clk) begin
-		if(bfm.rst_n == 1'b0) begin
-			rst_before <= 1;
-		end
-	end
-	
-	op_cov cg_op_cov;
-	error_cov cg_error_cov;
-	zero_ones_cov cg_0_F_cov;
-	
-	initial begin : coverage
-		
-		cg_op_cov = new();
-		cg_error_cov = new();
-		cg_0_F_cov = new();
-		
-		forever begin : sample_cov
-			@(negedge sample);
-			if(answer == ERROR) begin
-				cg_error_cov.sample();
-			end
-			else begin
-				cg_op_cov.sample();
-				cg_0_F_cov.sample();
-			end
-			@(negedge bfm.clk);
-			rst_before = 1'b0;
-		end
-		
-	end : coverage
-endmodule : coverage
+endclass : coverage

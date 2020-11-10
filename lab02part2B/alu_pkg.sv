@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 package alu_pkg;
 	typedef enum bit[2:0] {
 	   	AND  		= 3'b000,
@@ -24,4 +26,9 @@ package alu_pkg;
 		OK 			= 1'b0,
 		ERROR 		= 1'b1		
 	} status_t;
+	
+`include "coverage.svh"
+`include "tester.svh"
+`include "scoreboard.svh"
+`include "testbench.svh"
 endpackage : alu_pkg
