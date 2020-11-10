@@ -17,8 +17,8 @@ TESTS=(lab02part2A);
 # MAIN
 function main(){
   xrun_compile
-#  xrun_elaborate
-#  xrun_run_all_tests
+  xrun_elaborate
+  xrun_run_all_tests
 #  run_imc
 }
 #------------------------------------------------------------------------------
