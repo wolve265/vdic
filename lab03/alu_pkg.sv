@@ -1,6 +1,10 @@
 `timescale 1ns/1ps
 
 package alu_pkg;
+	
+	import uvm_pkg::*;
+	`include "uvm_macros.svh"
+	
 	typedef enum bit[2:0] {
 	   	AND  		= 3'b000,
 		OR 			= 3'b001,
@@ -27,8 +31,13 @@ package alu_pkg;
 		ERROR 		= 1'b1		
 	} status_t;
 	
-`include "coverage.svh"
-`include "tester.svh"
-`include "scoreboard.svh"
-`include "testbench.svh"
+	`include "coverage.svh"
+	`include "base_tester.svh"
+	`include "random_tester.svh"
+	`include "min_max_tester.svh"
+	`include "scoreboard.svh"
+	`include "env.svh"
+	`include "random_test.svh"
+	`include "min_max_test.svh"
+
 endpackage : alu_pkg

@@ -1,5 +1,8 @@
 module top;
-import alu_pkg::*;
+	
+	import uvm_pkg::*;
+	`include "uvm_macros.svh"
+	import alu_pkg::*;
 	
 	alu_bfm bfm();
 	
@@ -10,10 +13,7 @@ import alu_pkg::*;
 		.sout (bfm.sout) //serial data output
 	);	
 	
-	testbench testbench_h;
-	
 	initial begin
-		testbench_h = new(bfm);
-		testbench_h.execute();
+		uvm_config_db #(virtual alu_bfm)::set(null, "*", "bfm", bfm);
 	end
 endmodule : top
