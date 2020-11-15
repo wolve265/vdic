@@ -1,4 +1,5 @@
-# tested with XCELIUM 18.09
+#!/bin/bash
+# tested with XCELIUM 19.09
 
 # Commmand arguments:
 # -g option starts xrun simulation with gui, with separate database
@@ -11,6 +12,7 @@
 
 #------------------------------------------------------------------------------
 # The list of tests; in GUI mode only the first test is started.
+# TESTS=(random_test);
 TESTS=(random_test min_max_test);
 #------------------------------------------------------------------------------
 # MAIN
@@ -74,6 +76,7 @@ function xrun_info() { #<<<
   # Prints string between separators
   # args: string
   echo $separator
+  echo -n `date +[%k:%M:%S]`
   echo " # $*"
   echo $separator
   return 0
@@ -96,7 +99,7 @@ function xrun_check_status() { #<<<
 #------------------------------------------------------------------------------
 function xrun_compile() { #<<<
   time_meas_start
-  xrun_info "# Compiling. Log saved to xrun_compile.log"
+  xrun_info "Compiling. Log saved to xrun_compile.log"
   xrun -compile -l xrun_compile.log $XRUN_ARGS 
   xrun_check_status $? "Compilation"
   time_meas_end "Compilation"
@@ -104,7 +107,7 @@ function xrun_compile() { #<<<
 #------------------------------------------------------------------------------
 function xrun_elaborate() { #<<<
   time_meas_start
-  xrun_info "# Elaborating. Log saved to xrun_elaborate.log"
+  xrun_info "Elaborating. Log saved to xrun_elaborate.log"
   xrun -elaborate  -l xrun_elaborate.log $XRUN_ARGS
   xrun_check_status $? "Elaboration"
   time_meas_end "Elaboration"
@@ -117,23 +120,25 @@ function xrun_run_all_tests() { #<<<
   if [[ "$GUI" != "" ]] ; then
       xrun $XRUN_ARGS \
         -covtest ${TESTS[0]} \
-        -l xrun_gui.log
-        +UVM_TESTNAME=${TESTS[0]} \
+        -l xrun_gui.log \
+        +UVM_TESTNAME=${TESTS[0]} 
   else  
     TEST_LIST=""
 
     for TEST in ${TESTS[@]} ; do
       TEST_LIST="$TEST_LIST $TEST"
-      xrun_info "# Running test: $TEST. Log saved to xrun_test_$TEST.log"
+      xrun_info "Running test: $TEST. Log saved to xrun_test_$TEST.log"
       
       # run the simulation
       time_meas_start
       xrun $XRUN_ARGS \
         -covtest $TEST \
-        -l xrun_test_$TEST.log
-        +UVM_TESTNAME=$TEST \
+        -l xrun_test_$TEST.log \
+        +UVM_TESTNAME=$TEST
+
       xrun_check_status $? "Test $TEST"
       time_meas_end "Simulation test $TEST"
+
     done
 
     echo "# End of tests."
@@ -141,7 +146,7 @@ function xrun_run_all_tests() { #<<<
 } #>>>
 #------------------------------------------------------------------------------
 function run_imc { #<<<
-  xrun_info "# Running imc."
+  xrun_info "Running imc."
   time_meas_start
   #------------------------------------------------------------------------------
   # print the coverage results summary (non-GUI mode)
@@ -183,4 +188,5 @@ function time_meas_report { #<<<
 #------------------------------------------------------------------------------
 # run the main
 main
+
 # vim: fdm=marker foldmarker=<<<\,>>>
