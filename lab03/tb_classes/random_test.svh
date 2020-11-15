@@ -1,27 +1,24 @@
-class testbench;
+class random_test extends uvm_test;
 	
-	virtual alu_bfm bfm;
+	`uvm_component_utils(random_test)
 	
-	function new(virtual alu_bfm b);
-		bfm = b;
+	env env_h;
+	
+	function new(string name, uvm_component parent);
+		super.new(name, parent);
 	endfunction : new
 	
-	tester tester_h;
-	coverage coverage_h;
-	scoreboard scoreboard_h;
+	function void build_phase(uvm_phase phase);
+		
+		env_h = env::type_id::create("env_h", this);
+		
+		base_tester::type_id::set_type_override(random_tester::get_type());
+		
+	endfunction : build_phase
 	
-	task execute();
-		
-		tester_h = new(bfm);
-		coverage_h = new(bfm);
-		scoreboard_h = new(bfm);
-		
-		fork
-			tester_h.execute();
-			coverage_h.execute();
-			scoreboard_h.execute();
-		join_none 
-		
-	endtask : execute
-	
-endclass : testbench
+	virtual function void start_of_simulation_phase(uvm_phase phase);
+		super.start_of_simulation_phase(phase);
+		uvm_top.print_topology();		
+	endfunction : start_of_simulation_phase
+
+endclass : random_test

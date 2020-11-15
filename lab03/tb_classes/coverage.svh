@@ -1,6 +1,9 @@
-class coverage;
+class coverage extends uvm_component;
+	
+	`uvm_component_utils(coverage)
 	
 	virtual alu_bfm bfm;
+	
 	protected alu_op_t cp_alu_op;
 	protected test_op_t cp_test_op;
 	protected bit[31:0] cp_A;
@@ -177,12 +180,17 @@ class coverage;
 		
 	endgroup
 	
-	function new(virtual alu_bfm b);
+	function new(string name, uvm_component parent);
+		super.new(name, parent);
 		op_cov = new();
 		error_cov = new();
 		zero_ones_cov = new();
-		bfm = b;
 	endfunction : new
+	
+	function void build_phase(uvm_phase phase);
+		if(!uvm_config_db#(virtual alu_bfm)::get(null, "*", "bfm", bfm))
+			$fatal(1,"Failed to get BFM");
+	endfunction : build_phase
 	
 	protected task monitor_rst();
 		forever begin
@@ -205,7 +213,7 @@ class coverage;
 		rst_before = 1'b0;
 	endtask : coverage_sample
 	
-	task execute();
+	task run_phase(uvm_phase phase);
 		//in
 		status_t in_status;
 		bit [3:0] crc4;
@@ -279,6 +287,6 @@ class coverage;
 			@(negedge bfm.clk);
 		end : result_predict_loop
 
-	endtask : execute
+	endtask : run_phase
 	
 endclass : coverage

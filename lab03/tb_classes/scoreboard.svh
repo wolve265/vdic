@@ -1,12 +1,19 @@
-class scoreboard;
+class scoreboard extends uvm_component;
+	
+	`uvm_component_utils(scoreboard)
 	
 	virtual alu_bfm bfm;
 	
-	function new(virtual alu_bfm b);
-		bfm = b;
+	function new(string name, uvm_component parent);
+		super.new(name, parent);
 	endfunction : new
 	
-	task execute();
+	function void build_phase(uvm_phase phase);
+		if(!uvm_config_db#(virtual alu_bfm)::get(null, "*", "bfm", bfm))
+			$fatal(1,"Failed to get BFM");
+	endfunction : build_phase
+
+	task run_phase(uvm_phase phase);
 		forever begin
 			status_t result;
 			//in
@@ -133,6 +140,6 @@ class scoreboard;
 			#500;
 			
 		end
-	endtask : execute
+	endtask : run_phase
 	
 endclass : scoreboard
