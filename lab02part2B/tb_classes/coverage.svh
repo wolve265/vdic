@@ -211,70 +211,42 @@ class coverage;
 		bit [3:0] crc4;
 		bit [3:0] in_crc4;
 		//predicted
+		status_t predicted_alu_status;
 		bit [31:0] predicted_C;
+		bit [3:0] predicted_flags;
+		bit [2:0] predicted_crc3;
+		bit [5:0] predicted_err_flags;
+		bit predicted_parity;
 	
 		fork
 			monitor_rst();
 		join_none 
 		
 		forever begin : result_predict_loop
-			//clear predictions
-			predicted_C = '0;
-			cp_carry = 1'b0;
-			cp_overflow = 1'b0;
-			cp_negative = 1'b0;
-			cp_zero = 1'b0;
-		
+			
 			bfm.read_serial_in(in_status,cp_A,cp_B,cp_alu_op,in_crc4);
 			
-			if(in_status == ERROR) begin : invalid_data
+			bfm.predict_results(in_status, cp_A, cp_B, cp_alu_op, in_crc4,
+								predicted_alu_status, predicted_C, {cp_carry, cp_overflow, cp_zero, cp_negative},
+								predicted_crc3, predicted_err_flags, predicted_parity);
+			
+			if(predicted_err_flags[5] == 1'b1) begin : invalid_data
 				cp_test_op = BAD_DATA;
 				answer = ERROR;
-			end
+			end : invalid_data
+			else if(predicted_err_flags[4] == 1'b1) begin : invalid_crc
+				cp_test_op = BAD_CRC;
+				answer = ERROR;
+			end : invalid_crc
+			else if(predicted_err_flags[3] == 1'b1) begin : invalid_op
+				cp_test_op = BAD_OP;
+				answer = ERROR;
+			end : invalid_op
 			else begin : valid_data
 				cp_test_op = GOOD;
 				answer = OK;
-				case(cp_alu_op)
-					AND: begin : and_op
-						predicted_C = cp_B&cp_A;
-						crc4 = bfm.get_CRC4_d68({cp_B, cp_A, 1'b1, cp_alu_op});
-						cp_negative = predicted_C[31];//negative
-						cp_zero = (predicted_C == 0);//zero
-						cp_overflow = 0;//overflow
-						cp_carry = 0;//carry
-					end
-					OR: begin : or_op
-						predicted_C = cp_B|cp_A;
-						crc4 = bfm.get_CRC4_d68({cp_B, cp_A, 1'b1, cp_alu_op});
-						cp_negative = predicted_C[31];//negative
-						cp_zero = (predicted_C == 0);//zero
-						cp_overflow = 0;//overflow
-						cp_carry = 0;//carry
-					end
-					ADD: begin : add_op
-						{cp_carry,predicted_C} = cp_B+cp_A;
-						crc4 = bfm.get_CRC4_d68({cp_B, cp_A, 1'b1, cp_alu_op});
-						cp_negative = predicted_C[31];//negative
-						cp_zero = (predicted_C == 0);//zero
-						cp_overflow = ~(cp_A[31] ^ cp_B[31] ^ 1'b0) && (cp_A[31] ^ predicted_C[31]);//overflow
-					end
-					SUB: begin : sub_op
-						crc4 = bfm.get_CRC4_d68({cp_B, cp_A, 1'b1, cp_alu_op});
-						{cp_carry,predicted_C} = cp_B-cp_A;
-						cp_negative = predicted_C[31];//negative
-						cp_zero = (predicted_C == 0);//zero
-						cp_overflow = (((~predicted_C[31]) && (~cp_A[31]) && cp_B[31]) || (predicted_C[31] && cp_A[31] && (~cp_B[31])));//overflow
-					end
-					default: begin: invalid_op
-						cp_test_op = BAD_OP;
-						answer = ERROR;
-					end
-				endcase
-				if(in_crc4 != crc4) begin : invalid_crc
-					cp_test_op = BAD_CRC;
-					answer = ERROR;
-				end
-			end
+			end : valid_data
+			
 			coverage_sample();
 			@(negedge bfm.clk);
 		end : result_predict_loop
