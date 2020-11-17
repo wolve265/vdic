@@ -228,5 +228,87 @@ interface alu_bfm;
 			@(negedge clk) sin = d[i];
 		end
 	endtask
+	
+	task automatic predict_results(
+		input status_t in_status,
+		input bit [31:0] in_A,
+		input bit [31:0] in_B,
+		input alu_op_t in_alu_op,
+		input bit [3:0] in_crc4,
+		output status_t predicted_alu_status,
+		output bit [31:0] predicted_C,
+		output bit [3:0] predicted_flags,
+		output bit [2:0] predicted_crc3,
+		output bit [5:0] predicted_err_flags,
+		output bit predicted_parity
+		);
+		
+		bit [3:0] crc4;
+		
+		predicted_alu_status = OK;
+		predicted_C = '0;
+		predicted_flags = '0;
+		predicted_crc3 = '0;
+		predicted_err_flags = '0;
+		predicted_parity = '0;
+				
+		if(in_status == ERROR) begin : invalid_data
+			predicted_alu_status = in_status;
+			predicted_err_flags[5] = 1'b1;
+			predicted_err_flags[2:0] = predicted_err_flags[5:3];
+			predicted_parity = 1'b1;
+		end
+		else begin : valid_data
+			case(in_alu_op)
+				AND: begin : and_op
+					predicted_C = in_B&in_A;
+					crc4 = get_CRC4_d68({in_B, in_A, 1'b1, in_alu_op});
+					predicted_flags[0] = predicted_C[31];//negative
+					predicted_flags[1] = (predicted_C == 0);//zero
+					predicted_flags[2] = 0;//overflow
+					predicted_flags[3] = 0;//carry
+					predicted_crc3 = get_CRC3_d37({predicted_C, 1'b0, predicted_flags});
+				end
+				OR: begin : or_op
+					predicted_C = in_B|in_A;
+					crc4 = get_CRC4_d68({in_B, in_A, 1'b1, in_alu_op});
+					predicted_flags[0] = predicted_C[31];//negative
+					predicted_flags[1] = (predicted_C == 0);//zero
+					predicted_flags[2] = 0;//overflow
+					predicted_flags[3] = 0;//carry
+					predicted_crc3 = get_CRC3_d37({predicted_C, 1'b0, predicted_flags});
+				end
+				ADD: begin : add_op
+					{predicted_flags[3],predicted_C} = in_B+in_A;
+					crc4 = get_CRC4_d68({in_B, in_A, 1'b1, in_alu_op});
+					predicted_flags[0] = predicted_C[31];//negative
+					predicted_flags[1] = (predicted_C == 0);//zero
+					predicted_flags[2] = ~(in_A[31] ^ in_B[31] ^ 1'b0) && (in_A[31] ^ predicted_C[31]);//overflow
+					predicted_crc3 = get_CRC3_d37({predicted_C, 1'b0, predicted_flags});
+				end
+				SUB: begin : sub_op
+					crc4 = get_CRC4_d68({in_B, in_A, 1'b1, in_alu_op});
+					{predicted_flags[3],predicted_C} = in_B-in_A;
+					predicted_flags[0] = predicted_C[31];//negative
+					predicted_flags[1] = (predicted_C == 0);//zero
+					predicted_flags[2] = (((~predicted_C[31]) && (~in_A[31]) && in_B[31]) || (predicted_C[31] && in_A[31] && (~in_B[31])));//overflow
+					predicted_crc3 = get_CRC3_d37({predicted_C, 1'b0, predicted_flags});
+				end
+				default: begin: invalid_op
+					predicted_alu_status = ERROR;
+					predicted_err_flags[3] = 1'b1;
+					predicted_err_flags[2:0] = predicted_err_flags[5:3];
+					predicted_parity = 1'b1;
+				end
+			endcase // case(in_alu_op)
+			if(in_crc4 != crc4) begin : invalid_crc
+				predicted_alu_status = ERROR;
+				predicted_err_flags[4] = 1'b1;
+				predicted_err_flags[2:0] = predicted_err_flags[5:3];
+				predicted_parity = 1'b1;
+			end
+		end : valid_data
+		
+	endtask : predict_results
 
 endinterface : alu_bfm
