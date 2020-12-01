@@ -1,14 +1,12 @@
-class coverage extends uvm_component;
+class coverage extends uvm_subscriber #(command_s);
 	
 	`uvm_component_utils(coverage)
-	
-	virtual alu_bfm bfm;
 	
 	protected alu_op_t cp_alu_op;
 	protected test_op_t cp_test_op;
 	protected bit[31:0] cp_A;
 	protected bit[31:0] cp_B;
-	protected bit rst_before;
+	protected bit cp_rst_before = 0;
 	protected bit cp_carry;
 	protected bit cp_overflow;
 	protected bit cp_zero;
@@ -20,7 +18,7 @@ class coverage extends uvm_component;
 		
 		option.name = "cg_op_cov";
 		
-		rst_before_op: coverpoint rst_before {
+		rst_before_op: coverpoint cp_rst_before {
 			bins false = {1'b0};
 			bins true = {1'b1};		
 		}
@@ -187,78 +185,44 @@ class coverage extends uvm_component;
 		zero_ones_cov = new();
 	endfunction : new
 	
-	function void build_phase(uvm_phase phase);
-		if(!uvm_config_db#(virtual alu_bfm)::get(null, "*", "bfm", bfm))
-			$fatal(1,"Failed to get BFM");
-	endfunction : build_phase
-	
-	protected task monitor_rst();
-		forever begin
-			@(posedge bfm.clk)
-			if(bfm.rst_n == 1'b0) begin
-				rst_before = 1'b1;
-			end
-		end
-	endtask : monitor_rst
-	
-	protected task coverage_sample();
-		if(answer == ERROR) begin
-			error_cov.sample();
-		end
-		else begin
-			op_cov.sample();
-			zero_ones_cov.sample();
-		end
-		@(negedge bfm.clk);
-		rst_before = 1'b0;
-	endtask : coverage_sample
-	
-	task run_phase(uvm_phase phase);
-		//in
-		status_t in_status;
-		bit [3:0] crc4;
-		bit [3:0] in_crc4;
+	function void write(command_s t);
 		//predicted
-		status_t predicted_alu_status;
-		bit [31:0] predicted_C;
-		bit [3:0] predicted_flags;
-		bit [2:0] predicted_crc3;
-		bit [5:0] predicted_err_flags;
-		bit predicted_parity;
-	
-		fork
-			monitor_rst();
-		join_none 
+		result_s predicted;
 		
-		forever begin : result_predict_loop
+		if(t.test_op == RST) begin
+			cp_rst_before = 1'b1;
+		end
+		else begin : not_rst
+		
+			predicted = predict_results(t);
 			
-			bfm.read_serial_in(in_status,cp_A,cp_B,cp_alu_op,in_crc4);
+			cp_A = t.A;
+			cp_B = t.B;
+			cp_alu_op = t.alu_op;
+			cp_test_op = t.test_op;
+			cp_negative = predicted.flags[0];
+			cp_zero = predicted.flags[1];
+			cp_overflow = predicted.flags[2];
+			cp_carry = predicted.flags[3];
 			
-			bfm.predict_results(in_status, cp_A, cp_B, cp_alu_op, in_crc4,
-								predicted_alu_status, predicted_C, {cp_carry, cp_overflow, cp_zero, cp_negative},
-								predicted_crc3, predicted_err_flags, predicted_parity);
-			
-			if(predicted_err_flags[5] == 1'b1) begin : invalid_data
+			if(predicted.err_flags[5] == 1'b1) begin : invalid_data
 				cp_test_op = BAD_DATA;
-				answer = ERROR;
 			end : invalid_data
-			else if(predicted_err_flags[4] == 1'b1) begin : invalid_crc
+			else if(predicted.err_flags[4] == 1'b1) begin : invalid_crc
 				cp_test_op = BAD_CRC;
-				answer = ERROR;
 			end : invalid_crc
-			else if(predicted_err_flags[3] == 1'b1) begin : invalid_op
+			else if(predicted.err_flags[3] == 1'b1) begin : invalid_op
 				cp_test_op = BAD_OP;
-				answer = ERROR;
 			end : invalid_op
 			else begin : valid_data
 				cp_test_op = GOOD;
-				answer = OK;
+				error_cov.sample();
+				op_cov.sample();
+				zero_ones_cov.sample();
+				cp_rst_before = 1'b0;
 			end : valid_data
-			
-			coverage_sample();
-			@(negedge bfm.clk);
-		end : result_predict_loop
-
-	endtask : run_phase
+		end : not_rst
+		
+	endfunction : write
 	
 endclass : coverage

@@ -5,6 +5,7 @@ interface alu_bfm;
 	bit rst_n;
 	bit sin = 1;
 	bit sout;
+	bit read_sout_done = 0;
 	
 	initial begin : clk_gen
 	  	clk = 0;
@@ -14,31 +15,6 @@ interface alu_bfm;
 	  	end
 	end
 	
-	function bit [3:0] get_CRC4_d68(bit [67:0] d);
-		bit [3:0] c;
-		bit [3:0] crc;
-		
-		c = '0;
-		crc[0] = d[66] ^ d[64] ^ d[63] ^ d[60] ^ d[56] ^ d[55] ^ d[54] ^ d[53] ^ d[51] ^ d[49] ^ d[48] ^ d[45] ^ d[41] ^ d[40] ^ d[39] ^ d[38] ^ d[36] ^ d[34] ^ d[33] ^ d[30] ^ d[26] ^ d[25] ^ d[24] ^ d[23] ^ d[21] ^ d[19] ^ d[18] ^ d[15] ^ d[11] ^ d[10] ^ d[9] ^ d[8] ^ d[6] ^ d[4] ^ d[3] ^ d[0] ^ c[0] ^ c[2];
-	    crc[1] = d[67] ^ d[66] ^ d[65] ^ d[63] ^ d[61] ^ d[60] ^ d[57] ^ d[53] ^ d[52] ^ d[51] ^ d[50] ^ d[48] ^ d[46] ^ d[45] ^ d[42] ^ d[38] ^ d[37] ^ d[36] ^ d[35] ^ d[33] ^ d[31] ^ d[30] ^ d[27] ^ d[23] ^ d[22] ^ d[21] ^ d[20] ^ d[18] ^ d[16] ^ d[15] ^ d[12] ^ d[8] ^ d[7] ^ d[6] ^ d[5] ^ d[3] ^ d[1] ^ d[0] ^ c[1] ^ c[2] ^ c[3];
-	    crc[2] = d[67] ^ d[66] ^ d[64] ^ d[62] ^ d[61] ^ d[58] ^ d[54] ^ d[53] ^ d[52] ^ d[51] ^ d[49] ^ d[47] ^ d[46] ^ d[43] ^ d[39] ^ d[38] ^ d[37] ^ d[36] ^ d[34] ^ d[32] ^ d[31] ^ d[28] ^ d[24] ^ d[23] ^ d[22] ^ d[21] ^ d[19] ^ d[17] ^ d[16] ^ d[13] ^ d[9] ^ d[8] ^ d[7] ^ d[6] ^ d[4] ^ d[2] ^ d[1] ^ c[0] ^ c[2] ^ c[3];
-	    crc[3] = d[67] ^ d[65] ^ d[63] ^ d[62] ^ d[59] ^ d[55] ^ d[54] ^ d[53] ^ d[52] ^ d[50] ^ d[48] ^ d[47] ^ d[44] ^ d[40] ^ d[39] ^ d[38] ^ d[37] ^ d[35] ^ d[33] ^ d[32] ^ d[29] ^ d[25] ^ d[24] ^ d[23] ^ d[22] ^ d[20] ^ d[18] ^ d[17] ^ d[14] ^ d[10] ^ d[9] ^ d[8] ^ d[7] ^ d[5] ^ d[3] ^ d[2] ^ c[1] ^ c[3];
-		return crc;
-		
-	endfunction
-	
-	function bit [3:0] get_CRC3_d37(bit [36:0] d);
-		bit [2:0] c;
-		bit [2:0] crc;
-		
-		c = '0;
-		crc[0] = d[35] ^ d[32] ^ d[31] ^ d[30] ^ d[28] ^ d[25] ^ d[24] ^ d[23] ^ d[21] ^ d[18] ^ d[17] ^ d[16] ^ d[14] ^ d[11] ^ d[10] ^ d[9] ^ d[7] ^ d[4] ^ d[3] ^ d[2] ^ d[0] ^ c[1];
-		crc[1] = d[36] ^ d[35] ^ d[33] ^ d[30] ^ d[29] ^ d[28] ^ d[26] ^ d[23] ^ d[22] ^ d[21] ^ d[19] ^ d[16] ^ d[15] ^ d[14] ^ d[12] ^ d[9] ^ d[8] ^ d[7] ^ d[5] ^ d[2] ^ d[1] ^ d[0] ^ c[1] ^ c[2];
-		crc[2] = d[36] ^ d[34] ^ d[31] ^ d[30] ^ d[29] ^ d[27] ^ d[24] ^ d[23] ^ d[22] ^ d[20] ^ d[17] ^ d[16] ^ d[15] ^ d[13] ^ d[10] ^ d[9] ^ d[8] ^ d[6] ^ d[3] ^ d[2] ^ d[1] ^ c[0] ^ c[2];
-		return crc;
-		
-	endfunction
-	
 	task do_rst();
 		@(negedge clk);
 		rst_n = 1'b0;
@@ -46,7 +22,7 @@ interface alu_bfm;
 		rst_n = 1'b1;
 	endtask
 	
-	task automatic read_serial_in(
+	task read_serial_in(
 		output status_t in_status,
 		output bit [31:0] A,
 		output bit [31:0] B,
@@ -89,7 +65,7 @@ interface alu_bfm;
 	
 	endtask
 	
-	task automatic read_packet_in(
+	task read_packet_in(
 		output packet_t packet_type,
 		output bit [7:0] d
 		);
@@ -228,87 +204,39 @@ interface alu_bfm;
 			@(negedge clk) sin = d[i];
 		end
 	endtask
-	
-	task automatic predict_results(
-		input status_t in_status,
-		input bit [31:0] in_A,
-		input bit [31:0] in_B,
-		input alu_op_t in_alu_op,
-		input bit [3:0] in_crc4,
-		output status_t predicted_alu_status,
-		output bit [31:0] predicted_C,
-		output bit [3:0] predicted_flags,
-		output bit [2:0] predicted_crc3,
-		output bit [5:0] predicted_err_flags,
-		output bit predicted_parity
-		);
-		
-		bit [3:0] crc4;
-		
-		predicted_alu_status = OK;
-		predicted_C = '0;
-		predicted_flags = '0;
-		predicted_crc3 = '0;
-		predicted_err_flags = '0;
-		predicted_parity = '0;
-				
-		if(in_status == ERROR) begin : invalid_data
-			predicted_alu_status = in_status;
-			predicted_err_flags[5] = 1'b1;
-			predicted_err_flags[2:0] = predicted_err_flags[5:3];
-			predicted_parity = 1'b1;
-		end
-		else begin : valid_data
-			case(in_alu_op)
-				AND: begin : and_op
-					predicted_C = in_B&in_A;
-					crc4 = get_CRC4_d68({in_B, in_A, 1'b1, in_alu_op});
-					predicted_flags[0] = predicted_C[31];//negative
-					predicted_flags[1] = (predicted_C == 0);//zero
-					predicted_flags[2] = 0;//overflow
-					predicted_flags[3] = 0;//carry
-					predicted_crc3 = get_CRC3_d37({predicted_C, 1'b0, predicted_flags});
-				end
-				OR: begin : or_op
-					predicted_C = in_B|in_A;
-					crc4 = get_CRC4_d68({in_B, in_A, 1'b1, in_alu_op});
-					predicted_flags[0] = predicted_C[31];//negative
-					predicted_flags[1] = (predicted_C == 0);//zero
-					predicted_flags[2] = 0;//overflow
-					predicted_flags[3] = 0;//carry
-					predicted_crc3 = get_CRC3_d37({predicted_C, 1'b0, predicted_flags});
-				end
-				ADD: begin : add_op
-					{predicted_flags[3],predicted_C} = in_B+in_A;
-					crc4 = get_CRC4_d68({in_B, in_A, 1'b1, in_alu_op});
-					predicted_flags[0] = predicted_C[31];//negative
-					predicted_flags[1] = (predicted_C == 0);//zero
-					predicted_flags[2] = ~(in_A[31] ^ in_B[31] ^ 1'b0) && (in_A[31] ^ predicted_C[31]);//overflow
-					predicted_crc3 = get_CRC3_d37({predicted_C, 1'b0, predicted_flags});
-				end
-				SUB: begin : sub_op
-					crc4 = get_CRC4_d68({in_B, in_A, 1'b1, in_alu_op});
-					{predicted_flags[3],predicted_C} = in_B-in_A;
-					predicted_flags[0] = predicted_C[31];//negative
-					predicted_flags[1] = (predicted_C == 0);//zero
-					predicted_flags[2] = (((~predicted_C[31]) && (~in_A[31]) && in_B[31]) || (predicted_C[31] && in_A[31] && (~in_B[31])));//overflow
-					predicted_crc3 = get_CRC3_d37({predicted_C, 1'b0, predicted_flags});
-				end
-				default: begin: invalid_op
-					predicted_alu_status = ERROR;
-					predicted_err_flags[3] = 1'b1;
-					predicted_err_flags[2:0] = predicted_err_flags[5:3];
-					predicted_parity = 1'b1;
-				end
-			endcase // case(in_alu_op)
-			if(in_crc4 != crc4) begin : invalid_crc
-				predicted_alu_status = ERROR;
-				predicted_err_flags[4] = 1'b1;
-				predicted_err_flags[2:0] = predicted_err_flags[5:3];
-				predicted_parity = 1'b1;
-			end
-		end : valid_data
-		
-	endtask : predict_results
 
+	command_monitor command_monitor_h;
+	
+	initial begin : serial_in_monitor
+		command_s cmd;
+		status_t in_status;
+		forever begin
+			read_serial_in(in_status, cmd.A, cmd.B, cmd.alu_op, cmd.crc4);
+			if(in_status == ERROR)
+				cmd.test_op = BAD_DATA;
+			while(read_sout_done != 1'b1)
+				@(posedge clk);
+			command_monitor_h.write_to_monitor(cmd);
+		end
+	end : serial_in_monitor
+	
+	always @(negedge rst_n) begin : rst_monitor
+		command_s cmd;
+		cmd.test_op = RST;
+		if(command_monitor_h != null) //gurad againts VCS time 0 negedge
+			command_monitor_h.write_to_monitor(cmd);
+	end : rst_monitor
+	
+	result_monitor result_monitor_h;
+	
+	initial begin : serial_out_monitor
+		result_s result;
+		forever begin
+			read_serial_out(result.alu_status, result.C, result.flags, result.crc3, result.err_flags, result.parity);
+			result_monitor_h.write_to_monitor(result);
+			read_sout_done = 1'b1;
+			@(negedge clk);
+			@(negedge clk);
+		end
+	end : serial_out_monitor
 endinterface : alu_bfm

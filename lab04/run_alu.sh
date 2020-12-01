@@ -21,14 +21,11 @@ function main(){
   xrun_elaborate
   xrun_run_all_tests
   run_imc
-  time_meas_report
 }
 #------------------------------------------------------------------------------
 # local variables#<<<
 INCA="INCA_libs"
 GUI=""
-start_time=0
-time_report=""
 #>>>
 #------------------------------------------------------------------------------
 # check input script arguments#<<<
@@ -76,8 +73,7 @@ function xrun_info() { #<<<
   # Prints string between separators
   # args: string
   echo $separator
-  echo -n `date +[%k:%M:%S]`
-  echo " # $*"
+  echo "$*"
   echo $separator
   return 0
 } #>>>
@@ -98,19 +94,15 @@ function xrun_check_status() { #<<<
 } #>>>
 #------------------------------------------------------------------------------
 function xrun_compile() { #<<<
-  time_meas_start
-  xrun_info "Compiling. Log saved to xrun_compile.log"
+  xrun_info "# Compiling. Log saved to xrun_compile.log"
   xrun -compile -l xrun_compile.log $XRUN_ARGS 
   xrun_check_status $? "Compilation"
-  time_meas_end "Compilation"
 } #>>>
 #------------------------------------------------------------------------------
 function xrun_elaborate() { #<<<
-  time_meas_start
-  xrun_info "Elaborating. Log saved to xrun_elaborate.log"
+  xrun_info "# Elaborating. Log saved to xrun_elaborate.log"
   xrun -elaborate  -l xrun_elaborate.log $XRUN_ARGS
   xrun_check_status $? "Elaboration"
-  time_meas_end "Elaboration"
 } #>>>
 #------------------------------------------------------------------------------
 function xrun_run_all_tests() { #<<<
@@ -127,17 +119,15 @@ function xrun_run_all_tests() { #<<<
 
     for TEST in ${TESTS[@]} ; do
       TEST_LIST="$TEST_LIST $TEST"
-      xrun_info "Running test: $TEST. Log saved to xrun_test_$TEST.log"
+      xrun_info "# Running test: $TEST. Log saved to xrun_test_$TEST.log"
       
       # run the simulation
-      time_meas_start
       xrun $XRUN_ARGS \
         -covtest $TEST \
         -l xrun_test_$TEST.log \
         +UVM_TESTNAME=$TEST
 
       xrun_check_status $? "Test $TEST"
-      time_meas_end "Simulation test $TEST"
 
     done
 
@@ -146,8 +136,7 @@ function xrun_run_all_tests() { #<<<
 } #>>>
 #------------------------------------------------------------------------------
 function run_imc { #<<<
-  xrun_info "Running imc."
-  time_meas_start
+  xrun_info "# Running imc."
   #------------------------------------------------------------------------------
   # print the coverage results summary (non-GUI mode)
   if [[ "$GUI" == "" ]] ; then
@@ -167,23 +156,6 @@ function run_imc { #<<<
  To browse the results with gui use:
    imc -load merged_results"
   fi
-  time_meas_end "IMC"
-} #>>>
-#------------------------------------------------------------------------------
-function time_meas_start { #<<<
-  start_time=$(date +%s)
-} #>>>
-function time_meas_end { #<<<
-  end_time=$(date +%s)
-  info=$*;
-  time_report+=$'\n'
-  time_report+="  $info : $((end_time - start_time))s"
-} #>>>
-function time_meas_report { #<<<
-  echo $separator
-  echo -n "Time measurement results:"
-  echo "$time_report"
-  echo $separator
 } #>>>
 #------------------------------------------------------------------------------
 # run the main

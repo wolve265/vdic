@@ -1,16 +1,15 @@
 virtual class base_tester extends uvm_component;
 	
 	`uvm_component_utils(base_tester)
-
-	virtual alu_bfm bfm;
+	
+	uvm_put_port #(command_s) command_port;
 	
 	function new(string name, uvm_component parent);
 		super.new(name, parent);
 	endfunction : new
 	
 	function void build_phase(uvm_phase phase);
-		if(!uvm_config_db#(virtual alu_bfm)::get(null, "*", "bfm", bfm))
-			$fatal(1,"Failed to get BFM");
+		command_port = new("command_port", this);
 	endfunction : build_phase
 	
 	pure virtual function alu_op_t get_alu_op();
@@ -20,44 +19,26 @@ virtual class base_tester extends uvm_component;
 	pure virtual function bit [31:0] get_data();
 	
 	task run_phase(uvm_phase phase);
-		bit [31:0] A;
-		bit [31:0] B;
-		bit [3:0] crc4;
-		alu_op_t alu_op;
-		test_op_t test_op;
+		
+		command_s command;
 		integer counter = 1000;
 		
 		phase.raise_objection(this);
-		
-		bfm.do_rst();
+		command.test_op = RST;
+		command_port.put(command);
 		while(counter != 0) begin : tester_loop
 			counter--;
-			alu_op = get_alu_op();
-			test_op = get_test_op();
-			A = get_data();
-			B = get_data();
-			crc4 = bfm.get_CRC4_d68({B, A, 1'b1, alu_op});
-			
-			case(test_op)
-				BAD_CRC: begin : case_bad_crc
-					bfm.send_serial(A,B,alu_op,crc4+1);
-				end
-				BAD_DATA : begin : case_bad_data
-					bfm.send_serial_7frames(A,B,alu_op,crc4+1);
-				end
-				BAD_OP : begin : case_bad_op
-					bfm.send_serial(A,B,UNKNOWN,crc4);
-				end
-				RST: begin : case_rst
-					counter++;
-					bfm.do_rst();
-				end
-				default: begin : case_good
-					bfm.send_serial(A,B,alu_op,crc4);
-				end
-			endcase
-			#1500;
+			command.alu_op = get_alu_op();
+			command.test_op = get_test_op();
+			if(command.test_op == RST) begin
+				counter++;
+			end
+			command.A = get_data();
+			command.B = get_data();
+			command.crc4 = get_CRC4_d68({command.B, command.A, 1'b1, command.alu_op});
+			command_port.put(command);
 		end : tester_loop
+		
 		#2000;
 		
 		phase.drop_objection(this);
