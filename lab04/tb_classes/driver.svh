@@ -34,7 +34,7 @@ class driver extends uvm_component;
 					bfm.send_serial(command.A, command.B, command.alu_op, command.crc4);
 				end
 	        endcase
-	        #500;
+	        #1500;
         end : command_loop
     endtask : run_phase
 

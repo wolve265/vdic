@@ -92,54 +92,53 @@ package alu_pkg;
 			predicted.parity = 1'b1;
 		end
 		else begin : valid_data
-			case(command.alu_op)
-				AND: begin : and_op
-					predicted.C = command.B&command.A;
-					crc4 = get_CRC4_d68({command.B, command.A, 1'b1, command.alu_op});
-					predicted.flags[0] = predicted.C[31];//negative
-					predicted.flags[1] = (predicted.C == 0);//zero
-					predicted.flags[2] = 0;//overflow
-					predicted.flags[3] = 0;//carry
-					predicted.crc3 = get_CRC3_d37({predicted.C, 1'b0, predicted.flags});
-				end
-				OR: begin : or_op
-					predicted.C = command.B|command.A;
-					crc4 = get_CRC4_d68({command.B, command.A, 1'b1, command.alu_op});
-					predicted.flags[0] = predicted.C[31];//negative
-					predicted.flags[1] = (predicted.C == 0);//zero
-					predicted.flags[2] = 0;//overflow
-					predicted.flags[3] = 0;//carry
-					predicted.crc3 = get_CRC3_d37({predicted.C, 1'b0, predicted.flags});
-				end
-				ADD: begin : add_op
-					{predicted.flags[3],predicted.C} = command.B+command.A;
-					crc4 = get_CRC4_d68({command.B, command.A, 1'b1, command.alu_op});
-					predicted.flags[0] = predicted.C[31];//negative
-					predicted.flags[1] = (predicted.C == 0);//zero
-					predicted.flags[2] = ~(command.A[31] ^ command.B[31] ^ 1'b0) && (command.A[31] ^ predicted.C[31]);//overflow
-					predicted.crc3 = get_CRC3_d37({predicted.C, 1'b0, predicted.flags});
-				end
-				SUB: begin : sub_op
-					crc4 = get_CRC4_d68({command.B, command.A, 1'b1, command.alu_op});
-					{predicted.flags[3],predicted.C} = command.B-command.A;
-					predicted.flags[0] = predicted.C[31];//negative
-					predicted.flags[1] = (predicted.C == 0);//zero
-					predicted.flags[2] = (((~predicted.C[31]) && (~command.A[31]) && command.B[31]) || (predicted.C[31] && command.A[31] && (~command.B[31])));//overflow
-					predicted.crc3 = get_CRC3_d37({predicted.C, 1'b0, predicted.flags});
-				end
-				default: begin: invalid_op
-					predicted.alu_status = ERROR;
-					predicted.err_flags[3] = 1'b1;
-					predicted.err_flags[2:0] = predicted.err_flags[5:3];
-					predicted.parity = 1'b1;
-				end
-			endcase // case(command.alu_op)
+			crc4 = get_CRC4_d68({command.B, command.A, 1'b1, command.alu_op});
 			if(command.crc4 != crc4) begin : invalid_crc
 				predicted.alu_status = ERROR;
 				predicted.err_flags[4] = 1'b1;
 				predicted.err_flags[2:0] = predicted.err_flags[5:3];
 				predicted.parity = 1'b1;
-			end
+			end : invalid_crc
+			else begin : valid_crc
+				case(command.alu_op)
+					AND: begin : and_op
+						predicted.C = command.B&command.A;
+						predicted.flags[0] = predicted.C[31];//negative
+						predicted.flags[1] = (predicted.C == 0);//zero
+						predicted.flags[2] = 0;//overflow
+						predicted.flags[3] = 0;//carry
+						predicted.crc3 = get_CRC3_d37({predicted.C, 1'b0, predicted.flags});
+					end
+					OR: begin : or_op
+						predicted.C = command.B|command.A;
+						predicted.flags[0] = predicted.C[31];//negative
+						predicted.flags[1] = (predicted.C == 0);//zero
+						predicted.flags[2] = 0;//overflow
+						predicted.flags[3] = 0;//carry
+						predicted.crc3 = get_CRC3_d37({predicted.C, 1'b0, predicted.flags});
+					end
+					ADD: begin : add_op
+						{predicted.flags[3],predicted.C} = command.B+command.A;
+						predicted.flags[0] = predicted.C[31];//negative
+						predicted.flags[1] = (predicted.C == 0);//zero
+						predicted.flags[2] = ~(command.A[31] ^ command.B[31] ^ 1'b0) && (command.A[31] ^ predicted.C[31]);//overflow
+						predicted.crc3 = get_CRC3_d37({predicted.C, 1'b0, predicted.flags});
+					end
+					SUB: begin : sub_op
+						{predicted.flags[3],predicted.C} = command.B-command.A;
+						predicted.flags[0] = predicted.C[31];//negative
+						predicted.flags[1] = (predicted.C == 0);//zero
+						predicted.flags[2] = (((~predicted.C[31]) && (~command.A[31]) && command.B[31]) || (predicted.C[31] && command.A[31] && (~command.B[31])));//overflow
+						predicted.crc3 = get_CRC3_d37({predicted.C, 1'b0, predicted.flags});
+					end
+					default: begin: invalid_op
+						predicted.alu_status = ERROR;
+						predicted.err_flags[3] = 1'b1;
+						predicted.err_flags[2:0] = predicted.err_flags[5:3];
+						predicted.parity = 1'b1;
+					end
+				endcase // case(command.alu_op)
+			end : valid_crc
 		end : valid_data
 		return predicted;
 	endfunction : predict_results

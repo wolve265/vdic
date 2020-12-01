@@ -216,11 +216,13 @@ class coverage extends uvm_subscriber #(command_s);
 			end : invalid_op
 			else begin : valid_data
 				cp_test_op = GOOD;
-				error_cov.sample();
-				op_cov.sample();
-				zero_ones_cov.sample();
-				cp_rst_before = 1'b0;
 			end : valid_data
+		
+			error_cov.sample();
+			op_cov.sample();
+			zero_ones_cov.sample();
+			cp_rst_before = 1'b0;
+			
 		end : not_rst
 		
 	endfunction : write

@@ -211,6 +211,7 @@ interface alu_bfm;
 		command_s cmd;
 		status_t in_status;
 		forever begin
+			cmd.test_op = GOOD;
 			read_serial_in(in_status, cmd.A, cmd.B, cmd.alu_op, cmd.crc4);
 			if(in_status == ERROR)
 				cmd.test_op = BAD_DATA;
@@ -223,7 +224,7 @@ interface alu_bfm;
 	always @(negedge rst_n) begin : rst_monitor
 		command_s cmd;
 		cmd.test_op = RST;
-		if(command_monitor_h != null) //gurad againts VCS time 0 negedge
+		if(command_monitor_h != null) //guard againts VCS time 0 negedge
 			command_monitor_h.write_to_monitor(cmd);
 	end : rst_monitor
 	
@@ -231,12 +232,15 @@ interface alu_bfm;
 	
 	initial begin : serial_out_monitor
 		result_s result;
+		@(negedge clk);
+		@(negedge clk);
 		forever begin
+			read_sout_done = 1'b0;
 			read_serial_out(result.alu_status, result.C, result.flags, result.crc3, result.err_flags, result.parity);
-			result_monitor_h.write_to_monitor(result);
 			read_sout_done = 1'b1;
 			@(negedge clk);
 			@(negedge clk);
+			result_monitor_h.write_to_monitor(result);
 		end
 	end : serial_out_monitor
 endinterface : alu_bfm
