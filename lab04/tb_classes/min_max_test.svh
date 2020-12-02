@@ -7,6 +7,7 @@ class min_max_test extends random_test;
 	endfunction : new
 	
 	function void build_phase(uvm_phase phase);
+		super.build_phase(phase);
 		random_tester::type_id::set_type_override(min_max_tester::get_type());
 	endfunction : build_phase
 

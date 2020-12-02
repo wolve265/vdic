@@ -13,7 +13,9 @@ class driver extends uvm_component;
     task run_phase(uvm_phase phase);
         command_s command;
         shortint result;
-
+	    bit [2:0] alu_bit;
+	    alu_op_t bad_alu_op = UNKNOWN;
+	    
         forever begin : command_loop
             command_port.get(command);
 	        case(command.test_op)
@@ -24,7 +26,9 @@ class driver extends uvm_component;
 					bfm.send_serial_7frames(command.A,command.B,command.alu_op,command.crc4);
 				end
 				BAD_OP : begin : case_bad_op
-					bfm.send_serial(command.A,command.B,UNKNOWN,command.crc4);
+					$cast(alu_bit, bad_alu_op);
+					command.crc4 = get_CRC4_d68({command.B, command.A, 1'b1, alu_bit});
+					bfm.send_serial(command.A,command.B,bad_alu_op,command.crc4);
 				end
 				RST: begin : case_rst
 					#1500;

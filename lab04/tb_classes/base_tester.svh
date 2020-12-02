@@ -22,6 +22,7 @@ virtual class base_tester extends uvm_component;
 		
 		command_s command;
 		integer counter = 1000;
+		bit [2:0] alu_bit;
 		
 		phase.raise_objection(this);
 		command.test_op = RST;
@@ -35,7 +36,8 @@ virtual class base_tester extends uvm_component;
 			end
 			command.A = get_data();
 			command.B = get_data();
-			command.crc4 = get_CRC4_d68({command.B, command.A, 1'b1, command.alu_op});
+			$cast(alu_bit, command.alu_op);
+			command.crc4 = get_CRC4_d68({command.B, command.A, 1'b1, alu_bit});
 			command_port.put(command);
 		end : tester_loop
 		
