@@ -1,4 +1,5 @@
 interface alu_bfm;
+	
 	import alu_pkg::*;
 	
 	bit clk;

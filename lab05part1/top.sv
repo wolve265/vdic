@@ -1,8 +1,9 @@
 module top;
 	
 	import uvm_pkg::*;
-	`include "uvm_macros.svh"
 	import alu_pkg::*;
+	`include "uvm_macros.svh"
+	
 	
 	alu_bfm bfm();
 	
