@@ -31,23 +31,6 @@ package alu_pkg;
 		ERROR 		= 1'b1		
 	} status_t;
 	
-	typedef struct packed {
-		bit [31:0] A;
-		bit [31:0] B;
-		alu_op_t alu_op;
-		test_op_t test_op;
-		bit [3:0] crc4;
-	} command_s;
-	
-	typedef struct packed {
-		status_t alu_status;
-		bit [31:0] C;
-		bit [3:0] flags;
-		bit [2:0] crc3;
-		bit [5:0] err_flags;
-		bit parity;
-	} result_s;
-	
 	function bit [3:0] get_CRC4_d68(bit [67:0] d);
 		bit [3:0] c;
 		bit [3:0] crc;
@@ -72,13 +55,29 @@ package alu_pkg;
 		return crc;
 		
 	endfunction
-	
-	function  result_s predict_results(command_s command);
 		
-		result_s predicted;
+	`include "random_command_transaction.svh"
+	`include "minmax_command_transaction.svh"
+	`include "result_transaction.svh"
+	`include "coverage.svh"
+	`include "tester.svh"
+	`include "scoreboard.svh"
+	`include "driver.svh"
+	`include "command_monitor.svh"
+	`include "result_monitor.svh"
+	
+	`include "env.svh"
+	
+	`include "random_test.svh"
+	`include "minmax_test.svh"
+	
+	function result_transaction predict_results(random_command_transaction command);
+		
+		result_transaction predicted;
 		bit [3:0] crc4;
 		bit [2:0] alu_bit;
 		
+		predicted = new("predicted");
 		predicted.alu_status = OK;
 		predicted.C = '0;
 		predicted.flags = '0;
@@ -144,19 +143,5 @@ package alu_pkg;
 		end : valid_data
 		return predicted;
 	endfunction : predict_results
-	
-	`include "coverage.svh"
-	`include "base_tester.svh"
-	`include "random_tester.svh"
-	`include "min_max_tester.svh"
-	`include "scoreboard.svh"
-	`include "result_monitor.svh"
-	`include "command_monitor.svh"
-	`include "driver.svh"
-	
-	`include "env.svh"
-	
-	`include "random_test.svh"
-	`include "min_max_test.svh"
 
 endpackage : alu_pkg

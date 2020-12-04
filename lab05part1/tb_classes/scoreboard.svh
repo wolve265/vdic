@@ -1,8 +1,8 @@
-class scoreboard extends uvm_subscriber #(result_s);
+class scoreboard extends uvm_subscriber #(result_transaction);
 	
 	`uvm_component_utils(scoreboard)
 
-	uvm_tlm_analysis_fifo #(command_s) cmd_f;
+	uvm_tlm_analysis_fifo #(random_command_transaction) cmd_f;
 	
 	function new(string name, uvm_component parent);
 		super.new(name, parent);
@@ -12,48 +12,33 @@ class scoreboard extends uvm_subscriber #(result_s);
 		cmd_f = new("cmd_f", this);
 	endfunction : build_phase
 
-	function void write(result_s t);
-		status_t result;
+	function void write(result_transaction t);
+		string data_str;
 		//in
-		status_t in_status;
-		command_s cmd;
+		random_command_transaction cmd;
 		//predicted
-		result_s predicted;
+		result_transaction predicted;
 		
+		predicted = new("predicted");
+		cmd = new("cmd");
 		cmd.A = 0;
 		cmd.B = 0;
 		cmd.crc4 = 0;
 		cmd.alu_op = ADD;
 		cmd.test_op = RST;
-		result = OK;
 
 		do
 			if(!cmd_f.try_get(cmd))
-				$fatal(1, "Missing command in self checker");
+				`uvm_fatal("SCOREBOARD", "Missing command in scoreboard")
 		while(cmd.test_op == RST);
 
 		predicted = predict_results(cmd);
 		
-		if((predicted.alu_status == t.alu_status) && (t.alu_status == OK)) begin : alu_ok
-			if(predicted.C != t.C) begin : bad_data_match
-				result = ERROR;
-			end
-			else if(predicted.flags != t.flags) begin : bad_flags_match
-				result = ERROR;
-			end
-			else if(predicted.crc3 != t.crc3) begin : bad_crc3_match
-				result = ERROR;
-			end
-		end
-		else begin : alu_error
-			if((predicted.err_flags != t.err_flags) || (predicted.parity != t.parity)) begin : bad_error_match
-				result = ERROR;
-			end
-		end
-			
-		if(result != OK) begin
-			$display("FAILED");
-		end
+		data_str = {cmd.convert2string(), " ==> Actual ", t.convert2string(), " / Predicted ", predicted.convert2string()};
+		
+		if(!predicted.compare(t))
+			`uvm_error("SCOREBOARD", {"FAIL: ",data_str})
+		
 	endfunction : write
 	
 endclass : scoreboard

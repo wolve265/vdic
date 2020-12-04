@@ -208,8 +208,9 @@ interface alu_bfm;
 	command_monitor command_monitor_h;
 	
 	initial begin : serial_in_monitor
-		command_s cmd;
+		random_command_transaction cmd;
 		status_t in_status;
+		cmd = new("cmd");
 		forever begin
 			cmd.test_op = GOOD;
 			read_serial_in(in_status, cmd.A, cmd.B, cmd.alu_op, cmd.crc4);
@@ -222,7 +223,8 @@ interface alu_bfm;
 	end : serial_in_monitor
 	
 	always @(negedge rst_n) begin : rst_monitor
-		command_s cmd;
+		random_command_transaction cmd;
+		cmd = new("cmd");
 		cmd.test_op = RST;
 		if(command_monitor_h != null) //guard againts VCS time 0 negedge
 			command_monitor_h.write_to_monitor(cmd);
@@ -231,7 +233,8 @@ interface alu_bfm;
 	result_monitor result_monitor_h;
 	
 	initial begin : serial_out_monitor
-		result_s result;
+		result_transaction result;
+		result = new("result");
 		@(negedge clk);
 		@(negedge clk);
 		forever begin

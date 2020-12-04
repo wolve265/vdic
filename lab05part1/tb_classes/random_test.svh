@@ -13,7 +13,6 @@ class random_test extends uvm_test;
 	endfunction : build_phase
 	
 	function void end_of_elaboration_phase(uvm_phase phase);
-		super.end_of_elaboration_phase(phase);
 		this.print(); // print test environment topology		
 	endfunction : end_of_elaboration_phase
 

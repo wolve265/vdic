@@ -1,4 +1,4 @@
-class coverage extends uvm_subscriber #(command_s);
+class coverage extends uvm_subscriber #(random_command_transaction);
 	
 	`uvm_component_utils(coverage)
 	
@@ -185,9 +185,9 @@ class coverage extends uvm_subscriber #(command_s);
 		zero_ones_cov = new();
 	endfunction : new
 	
-	function void write(command_s t);
+	function void write(random_command_transaction t);
 		//predicted
-		result_s predicted;
+		result_transaction predicted;
 		
 		if(t.test_op == RST) begin
 			cp_rst_before = 1'b1;
