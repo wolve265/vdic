@@ -19,7 +19,7 @@ class command_monitor extends uvm_component;
     endfunction : build_phase
 
     function void write_to_monitor(random_command_transaction cmd);
-        `uvm_info("COMMAND MONITOR", $sformatf("COMMAND MONITOR: A: %2h  B: %2h alu_op: %s test_op: %s crc4: %h",
+        `uvm_info("COMMAND MONITOR", $sformatf("COMMAND MONITOR: A: %h  B: %h alu_op: %s test_op: %s crc4: %h",
 	        		cmd.A, cmd.B, cmd.alu_op.name(), cmd.test_op.name(), cmd.crc4), UVM_HIGH)
         ap.write(cmd);
     endfunction : write_to_monitor

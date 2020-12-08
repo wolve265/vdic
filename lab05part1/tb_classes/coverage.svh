@@ -186,8 +186,11 @@ class coverage extends uvm_subscriber #(random_command_transaction);
 	endfunction : new
 	
 	function void write(random_command_transaction t);
+			
 		//predicted
 		result_transaction predicted;
+		
+		`uvm_info("COVERAGE", t.convert2string(), UVM_HIGH)
 		
 		if(t.test_op == RST) begin
 			cp_rst_before = 1'b1;
@@ -195,6 +198,8 @@ class coverage extends uvm_subscriber #(random_command_transaction);
 		else begin : not_rst
 		
 			predicted = predict_results(t);
+			
+			`uvm_info("COVERAGE", predicted.convert2string(), UVM_HIGH)
 			
 			cp_A = t.A;
 			cp_B = t.B;

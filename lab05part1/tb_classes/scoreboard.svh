@@ -38,6 +38,8 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 		
 		if(!predicted.compare(t))
 			`uvm_error("SCOREBOARD", {"FAIL: ",data_str})
+		else
+			`uvm_info("SCOREBOARD", {"PASS: ",data_str}, UVM_HIGH)
 		
 	endfunction : write
 	

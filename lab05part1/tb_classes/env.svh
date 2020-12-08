@@ -35,6 +35,8 @@ class env extends uvm_env;
 	
     function void end_of_elaboration_phase(uvm_phase phase);
         scoreboard_h.set_report_verbosity_level_hier(UVM_HIGH);
+	    command_monitor_h.set_report_verbosity_level(UVM_HIGH);
+	    coverage_h.set_report_verbosity_level(UVM_HIGH);
     endfunction : end_of_elaboration_phase
 
 endclass : env

@@ -15,7 +15,7 @@ class tester extends uvm_component;
 	task run_phase(uvm_phase phase);
 		
 		random_command_transaction command;
-		integer counter = 1000;
+		integer counter = 100;
 		bit [2:0] alu_bit;
 		
 		phase.raise_objection(this);

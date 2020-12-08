@@ -1,6 +1,6 @@
 class random_command_transaction extends uvm_transaction;
 	
-	`uvm_component_utils(random_command_transaction)
+	`uvm_object_utils(random_command_transaction)
 	
 	function new(string name="");
 		super.new(name);
@@ -12,8 +12,8 @@ class random_command_transaction extends uvm_transaction;
 	rand test_op_t 	test_op;
 	bit [3:0] 		crc4;
 	
-	constraint data { A dist {8'h00:=1, [8'h01 : 8'hFE]:=1, 8'hFF:=1};
-                      B dist {8'h00:=1, [8'h01 : 8'hFE]:=1, 8'hFF:=1}; }
+	constraint data { A dist {32'h00_00_00_00:=1, [32'h00_00_00_01 : 32'hFF_FF_FF_FF]:/1, 32'hFF_FF_FF_FF:=1};
+                      B dist {32'h00_00_00_00:=1, [32'h00_00_00_01 : 32'hFF_FF_FF_FF]:/1, 32'hFF_FF_FF_FF:=1}; }
 	
 	constraint alu  { alu_op dist {AND:=1, OR:=1, ADD:=1, SUB:=1}; }
 	
@@ -48,7 +48,7 @@ class random_command_transaction extends uvm_transaction;
    	
    	virtual function string convert2string();
       	string s;
-      	s = $sformatf("A: %2h  B: %2h alu_op: %s test_op: %s crc4: %h",
+      	s = $sformatf("A: %h  B: %h alu_op: %s test_op: %s crc4: %h",
 	      				A, B, alu_op.name(), test_op.name(), crc4);
       	return s;
    	endfunction : convert2string
