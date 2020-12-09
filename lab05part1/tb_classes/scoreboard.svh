@@ -21,16 +21,13 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 		
 		predicted = new("predicted");
 		cmd = new("cmd");
-		cmd.A = 0;
-		cmd.B = 0;
-		cmd.crc4 = 0;
-		cmd.alu_op = ADD;
-		cmd.test_op = RST;
 
 		do
 			if(!cmd_f.try_get(cmd))
 				`uvm_fatal("SCOREBOARD", "Missing command in scoreboard")
 		while(cmd.test_op == RST);
+		
+		`uvm_info("SCOREBOARD", {"KOMENDA ZARAZ PO GET: ",cmd.convert2string()}, UVM_HIGH)
 
 		predicted = predict_results(cmd);
 		

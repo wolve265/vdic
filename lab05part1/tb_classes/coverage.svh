@@ -209,7 +209,7 @@ class coverage extends uvm_subscriber #(random_command_transaction);
 			cp_zero = predicted.flags[1];
 			cp_overflow = predicted.flags[2];
 			cp_carry = predicted.flags[3];
-			
+			/*
 			if(predicted.err_flags[5] == 1'b1) begin : invalid_data
 				cp_test_op = BAD_DATA;
 			end : invalid_data
@@ -222,7 +222,7 @@ class coverage extends uvm_subscriber #(random_command_transaction);
 			else begin : valid_data
 				cp_test_op = GOOD;
 			end : valid_data
-		
+			*/
 			error_cov.sample();
 			op_cov.sample();
 			zero_ones_cov.sample();

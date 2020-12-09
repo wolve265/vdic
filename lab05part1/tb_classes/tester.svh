@@ -15,7 +15,7 @@ class tester extends uvm_component;
 	task run_phase(uvm_phase phase);
 		
 		random_command_transaction command;
-		integer counter = 100;
+		integer counter = 1000;
 		bit [2:0] alu_bit;
 		
 		phase.raise_objection(this);
@@ -26,11 +26,13 @@ class tester extends uvm_component;
 		
 		while(counter != 0) begin : tester_loop
 			counter--;
+			`uvm_info("TESTER ALL", {"RANDOM_GENERATE"}, UVM_HIGH)
 			command = random_command_transaction::type_id::create("command");
 			if(!command.randomize())
 				`uvm_fatal("TESTER", "Randomization failed");
 			
 			if(command.test_op == RST) begin
+				`uvm_info("TESTER RST", {"RST"}, UVM_HIGH)
 				counter++;
 			end
 

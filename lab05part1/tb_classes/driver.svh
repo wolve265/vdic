@@ -21,6 +21,10 @@ class driver extends uvm_component;
 	    
         forever begin : command_loop
             command_port.get(command);
+	        
+	        `uvm_info("DRIVER", $sformatf("DRIVER: A: %h  B: %h alu_op: %s test_op: %s crc4: %h",
+	        		command.A, command.B, command.alu_op.name(), command.test_op.name(), command.crc4), UVM_HIGH)
+		        
 	        case(command.test_op)
 				BAD_CRC: begin : case_bad_crc
 					bfm.send_serial(command.A,command.B,command.alu_op,command.crc4+1);

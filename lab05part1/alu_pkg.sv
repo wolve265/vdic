@@ -135,6 +135,9 @@ package alu_pkg;
 			$cast(alu_bit, command.alu_op);
 			crc4 = get_CRC4_d68({command.B, command.A, 1'b1, alu_bit});
 			if(command.crc4 != crc4) begin : invalid_crc
+				predicted.C = '0;
+				predicted.flags = '0;
+				predicted.crc3 = '0;
 				predicted.alu_status = ERROR;
 				predicted.err_flags[4] = 1'b1;
 				predicted.err_flags[2:0] = predicted.err_flags[5:3];

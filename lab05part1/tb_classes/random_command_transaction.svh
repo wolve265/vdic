@@ -15,9 +15,9 @@ class random_command_transaction extends uvm_transaction;
 	constraint data { A dist {32'h00_00_00_00:=1, [32'h00_00_00_01 : 32'hFF_FF_FF_FF]:/1, 32'hFF_FF_FF_FF:=1};
                       B dist {32'h00_00_00_00:=1, [32'h00_00_00_01 : 32'hFF_FF_FF_FF]:/1, 32'hFF_FF_FF_FF:=1}; }
 	
-	constraint alu  { alu_op dist {AND:=1, OR:=1, ADD:=1, SUB:=1}; }
+	constraint alu  { alu_op dist {AND:=1, OR:=1, ADD:=1, SUB:=1, UNKNOWN:=0}; }
 	
-	constraint test { test_op dist {GOOD:=10, RST:=3, BAD_OP:=1, BAD_CRC:=1, BAD_DATA:=1}; }
+	constraint test { test_op dist {GOOD:=5, RST:=2, BAD_OP:=1, BAD_CRC:=1, BAD_DATA:=1}; }
 	
 	virtual function void do_copy(uvm_object rhs);
 		random_command_transaction copied_transaction_h;

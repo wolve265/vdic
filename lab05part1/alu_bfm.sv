@@ -213,10 +213,11 @@ interface alu_bfm;
 		status_t in_status;
 		cmd = new("cmd");
 		forever begin
-			cmd.test_op = GOOD;
 			read_serial_in(in_status, cmd.A, cmd.B, cmd.alu_op, cmd.crc4);
 			if(in_status == ERROR)
 				cmd.test_op = BAD_DATA;
+			else
+				cmd.test_op = GOOD;
 			while(read_sout_done != 1'b1)
 				@(posedge clk);
 			command_monitor_h.write_to_monitor(cmd);

@@ -34,12 +34,6 @@ class result_transaction extends uvm_transaction;
 
    	virtual function string convert2string();
       	string s;
-	   	status_t alu_status;
-		bit [31:0] C;
-		bit [3:0] flags;
-		bit [2:0] crc3;
-		bit [5:0] err_flags;
-		bit parity;
       	s = $sformatf("alu_status: %s C: %h flags: %b crc3: %h err_flags: %b parity: %b",
 	      				alu_status.name(), C, flags, crc3,
 	      				err_flags, parity);
