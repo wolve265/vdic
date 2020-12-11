@@ -9,6 +9,7 @@ module alu_tester_module(alu_bfm bfm);
 			2'b01: return OR;
 			2'b10: return ADD;
 			2'b11: return SUB;
+			default: return AND;
 		endcase
 	endfunction : get_alu_op
 	
@@ -32,6 +33,7 @@ module alu_tester_module(alu_bfm bfm);
 			4'b1101: return GOOD;
 			4'b1110: return GOOD;
 			4'b1111: return GOOD;
+			default: return RST;
 		endcase
 	endfunction : get_test_op
 	
