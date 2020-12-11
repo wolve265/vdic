@@ -45,7 +45,6 @@ class result_transaction extends uvm_transaction;
       	bit    same;
       	if (rhs==null) `uvm_fatal("RESULT TRANSACTION", 
                                   "Tried to do comparison to a null pointer");
-
       	
 		if (!$cast(compared_transaction_h,rhs))
         	same = 0;

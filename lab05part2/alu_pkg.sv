@@ -55,21 +55,28 @@ package alu_pkg;
 		return crc;
 		
 	endfunction
-		
+	
+	// configs
+	`include "env_config.svh"
+	`include "alu_agent_config.sv"
+	
+	// transactions
 	`include "random_command_transaction.svh"
 	`include "minmax_command_transaction.svh"
 	`include "result_transaction.svh"
+	
+	// testbench components
 	`include "coverage.svh"
 	`include "tester.svh"
 	`include "scoreboard.svh"
 	`include "driver.svh"
 	`include "command_monitor.svh"
 	`include "result_monitor.svh"
-	
+	`include "alu_agent.svh"
 	`include "env.svh"
 	
-	`include "random_test.svh"
-	`include "minmax_test.svh"
+	// tests
+	`include "dual_test.svh"
 	
 	function result_transaction predict_results(random_command_transaction command);
 		
