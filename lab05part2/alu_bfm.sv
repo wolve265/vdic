@@ -211,13 +211,32 @@ interface alu_bfm;
 	initial begin : serial_in_monitor
 		random_command_transaction cmd;
 		status_t in_status;
+		bit [2:0] alu_bit;
+		bit [3:0] my_crc4;
+		
 		cmd = new("cmd");
 		forever begin
 			read_serial_in(in_status, cmd.A, cmd.B, cmd.alu_op, cmd.crc4);
-			if(in_status == ERROR)
+
+			if(in_status == ERROR) begin : bad_data
 				cmd.test_op = BAD_DATA;
-			else
-				cmd.test_op = GOOD;
+			end : bad_data
+			else begin : good_data
+				if(cmd.alu_op == UNKNOWN) begin : unknown_op
+					cmd.test_op = BAD_OP;
+				end : unknown_op
+				else begin : good_op
+					$cast(alu_bit, cmd.alu_op);
+					my_crc4 = get_CRC4_d68({cmd.B, cmd.A, 1'b1, alu_bit});
+					if(my_crc4 != cmd.crc4) begin : bad_crc
+						cmd.test_op = BAD_CRC;
+					end : bad_crc
+					else begin : all_good
+						cmd.test_op = GOOD;
+					end : all_good
+				end : good_op
+			end : good_data
+			
 			while(read_sout_done != 1'b1)
 				@(posedge clk);
 			command_monitor_h.write_to_monitor(cmd);

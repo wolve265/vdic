@@ -52,7 +52,7 @@ class alu_agent extends uvm_agent;
 		
 		result_monitor_h.ap.connect(scoreboard_h.analysis_export);
 		command_monitor_h.ap.connect(scoreboard_h.cmd_f.analysis_export);
-		command_f.put_ap.connect(coverage_h.analysis_export); // ZOBACZYC CZY TO DZIALA
+		command_monitor_h.ap.connect(coverage_h.analysis_export);
 		
 	endfunction : connect_phase
 
