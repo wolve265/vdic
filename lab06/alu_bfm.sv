@@ -16,6 +16,10 @@ interface alu_bfm;
 	  	end
 	end
 	
+	initial begin : do_initial_rst
+		do_rst();
+	end
+	
 	task do_rst();
 		@(negedge clk);
 		rst_n = 1'b0;

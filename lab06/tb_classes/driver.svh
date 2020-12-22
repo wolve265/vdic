@@ -20,11 +20,16 @@ class driver extends uvm_driver #(sequence_item);
 	    alu_op_t bad_alu_op = UNKNOWN;
 	    
 	    void'(begin_tr(command));
-
+	    
+	    #1500;
+	    
         forever begin : command_loop
 
 	        seq_item_port.get_next_item(command);
-
+	        
+	        $cast(alu_bit, command.alu_op);
+			command.crc4 = get_CRC4_d68({command.B, command.A, 1'b1, alu_bit});
+	        
 	        case(command.test_op)
 				BAD_CRC: begin : case_bad_crc
 					bfm.send_serial(command.A,command.B,command.alu_op,command.crc4+1);
@@ -46,9 +51,9 @@ class driver extends uvm_driver #(sequence_item);
 				end
 	        endcase
 	        
-	        seq_item_port.item_done();
 	        #1500;
-	        
+	        seq_item_port.item_done();
+	        	        
         end : command_loop
         
         end_tr(command);

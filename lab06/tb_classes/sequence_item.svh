@@ -10,8 +10,8 @@ class sequence_item extends uvm_sequence_item;
 	rand test_op_t 	test_op;
 	bit [3:0] 		crc4;
 	
-	constraint data { A dist {32'h00_00_00_00:=1, [32'h00_00_00_01 : 32'hFF_FF_FF_FF]:=1, 32'hFF_FF_FF_FF:=1};
-                      B dist {32'h00_00_00_00:=1, [32'h00_00_00_01 : 32'hFF_FF_FF_FF]:=1, 32'hFF_FF_FF_FF:=1}; }
+	constraint data { A dist {[32'h00_00_00_00 : 32'hFF_FF_FF_FF]:=1};
+                      B dist {[32'h00_00_00_00 : 32'hFF_FF_FF_FF]:=1}; }
 	
 	constraint alu  { alu_op dist {AND:=1, OR:=1, ADD:=1, SUB:=1, UNKNOWN:=0}; }
 	

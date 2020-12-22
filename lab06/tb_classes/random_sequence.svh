@@ -13,7 +13,9 @@ class random_sequence extends uvm_sequence #(sequence_item);
         
         `uvm_create(command);
         
-        repeat (2000) begin : random_loop
+        `uvm_do_with(command, {test_op == RST;})
+        
+        repeat (1000) begin : random_loop
            `uvm_rand_send(command)
         end : random_loop
         

@@ -190,7 +190,7 @@ class coverage extends uvm_subscriber #(sequence_item);
 		//predicted
 		result_transaction predicted;
 		
-		`uvm_info("COVERAGE", t.convert2string(), UVM_HIGH)
+		//$display({"COVERAGE ", t.convert2string()});
 		
 		if(t.test_op == RST) begin
 			cp_rst_before = 1'b1;
@@ -199,7 +199,7 @@ class coverage extends uvm_subscriber #(sequence_item);
 		
 			predicted = predict_results(t);
 			
-			`uvm_info("COVERAGE", predicted.convert2string(), UVM_HIGH)
+			//$display({"COVERAGE ", predicted.convert2string()});
 			
 			cp_A = t.A;
 			cp_B = t.B;
@@ -209,7 +209,7 @@ class coverage extends uvm_subscriber #(sequence_item);
 			cp_zero = predicted.flags[1];
 			cp_overflow = predicted.flags[2];
 			cp_carry = predicted.flags[3];
-			/*
+			
 			if(predicted.err_flags[5] == 1'b1) begin : invalid_data
 				cp_test_op = BAD_DATA;
 			end : invalid_data
@@ -222,7 +222,7 @@ class coverage extends uvm_subscriber #(sequence_item);
 			else begin : valid_data
 				cp_test_op = GOOD;
 			end : valid_data
-			*/
+			
 			error_cov.sample();
 			op_cov.sample();
 			zero_ones_cov.sample();

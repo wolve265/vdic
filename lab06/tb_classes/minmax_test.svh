@@ -2,7 +2,7 @@ class minmax_test extends alu_base_test;
 	
 	`uvm_component_utils(minmax_test)
 	
-	random_sequence minmax_h;
+	minmax_sequence minmax_h;
 	
 	function new(string name, uvm_component parent);
 		super.new(name, parent);

@@ -33,6 +33,8 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 		
 		data_str = {cmd.convert2string(), " ==> Actual ", t.convert2string(), " / Predicted ", predicted.convert2string()};
 		
+		//$display({"SCOREBOARD ", data_str});
+		
 		if(!predicted.compare(t))
 			`uvm_error("SCOREBOARD", {"FAIL: ",data_str})
 		else

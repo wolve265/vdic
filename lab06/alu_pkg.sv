@@ -82,7 +82,7 @@ package alu_pkg;
 	`include "random_test.svh"
 	`include "minmax_test.svh"
 	
-	function result_transaction predict_results(sequence_item command);
+	function automatic result_transaction predict_results(sequence_item command);
 		
 		result_transaction predicted;
 		bit [3:0] crc4;
@@ -99,8 +99,7 @@ package alu_pkg;
 				
 		if(command.test_op == BAD_DATA) begin : invalid_data
 			predicted.alu_status = ERROR;
-			predicted.err_flags[5] = 1'b1;
-			predicted.err_flags[2:0] = predicted.err_flags[5:3];
+			predicted.err_flags = 6'b100100;
 			predicted.parity = 1'b1;
 		end
 		else begin : valid_data
@@ -143,6 +142,7 @@ package alu_pkg;
 					predicted.parity = 1'b1;
 				end
 			endcase // case(command.alu_op)
+			
 			$cast(alu_bit, command.alu_op);
 			crc4 = get_CRC4_d68({command.B, command.A, 1'b1, alu_bit});
 			if(command.crc4 != crc4) begin : invalid_crc
@@ -150,8 +150,7 @@ package alu_pkg;
 				predicted.flags = '0;
 				predicted.crc3 = '0;
 				predicted.alu_status = ERROR;
-				predicted.err_flags[4] = 1'b1;
-				predicted.err_flags[2:0] = predicted.err_flags[5:3];
+				predicted.err_flags = 6'b010010;
 				predicted.parity = 1'b1;
 			end : invalid_crc
 		end : valid_data
