@@ -55,8 +55,8 @@ module alu_tester_module(alu_bfm bfm);
 		alu_op_t alu_op;
 		test_op_t test_op;
 		bit [2:0] alu_bit;
-	    alu_op_t bad_alu_op = UNKNOWN;
-		integer counter = 1000;
+	    static alu_op_t bad_alu_op = UNKNOWN;
+		static integer counter = 1000;
 		
 		bfm.do_rst();
 		while(counter != 0) begin : tester_loop
