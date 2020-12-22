@@ -3,5 +3,5 @@
 # +dvt_init_auto
 +dvt_setenv+UVM_HOME=/cad/DVT/dvt_eclipse_20.1.33/predefined_projects/libs/uvm-1.2
 -uvm
--F lab05part1/mtm_dut.f
--F lab05part1/mtm_tb.f
+-F lab06/mtm_dut.f
+-F lab06/mtm_tb.f
