@@ -2,7 +2,7 @@ class command_monitor extends uvm_component;
     `uvm_component_utils(command_monitor)
 
     virtual alu_bfm bfm;
-    uvm_analysis_port #(random_command_transaction) ap;
+    uvm_analysis_port #(sequence_item) ap;
 	
     function new (string name, uvm_component parent);
         super.new(name,parent);
@@ -18,7 +18,7 @@ class command_monitor extends uvm_component;
 
     endfunction : build_phase
 
-    function void write_to_monitor(random_command_transaction cmd);
+    function void write_to_monitor(sequence_item cmd);
         `uvm_info("COMMAND MONITOR", $sformatf("COMMAND MONITOR: A: %h  B: %h alu_op: %s test_op: %s crc4: %h",
 	        		cmd.A, cmd.B, cmd.alu_op.name(), cmd.test_op.name(), cmd.crc4), UVM_HIGH)
         ap.write(cmd);

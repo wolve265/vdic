@@ -18,4 +18,5 @@ module top;
 		uvm_config_db #(virtual alu_bfm)::set(null, "*", "bfm", bfm);
 		run_test();
 	end
+	
 endmodule : top

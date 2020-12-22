@@ -1,21 +1,18 @@
-class random_test extends uvm_test;
+class random_test extends alu_base_test;
 	
 	`uvm_component_utils(random_test)
 	
-	env env_h;
+	random_sequence random_h;
 	
 	function new(string name, uvm_component parent);
 		super.new(name, parent);
+		random_h = new("random_h");
 	endfunction : new
-	
-	function void build_phase(uvm_phase phase);
-		env_h = env::type_id::create("env_h", this);
-	endfunction : build_phase
-	
-	function void end_of_elaboration_phase(uvm_phase phase);
-		this.print(); // print test environment topology		
-	endfunction : end_of_elaboration_phase
 
-
+	task run_phase(uvm_phase phase);
+		phase.raise_objection(this);
+		random_h.start(sequencer_h);
+		phase.drop_objection(this);
+	endtask : run_phase
 
 endclass : random_test

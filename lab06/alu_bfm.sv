@@ -209,7 +209,7 @@ interface alu_bfm;
 	command_monitor command_monitor_h;
 	
 	initial begin : serial_in_monitor
-		random_command_transaction cmd;
+		sequence_item cmd;
 		status_t in_status;
 		cmd = new("cmd");
 		forever begin
@@ -225,7 +225,7 @@ interface alu_bfm;
 	end : serial_in_monitor
 	
 	always @(negedge rst_n) begin : rst_monitor
-		random_command_transaction cmd;
+		sequence_item cmd;
 		cmd = new("cmd");
 		cmd.test_op = RST;
 		if(command_monitor_h != null) //guard againts VCS time 0 negedge

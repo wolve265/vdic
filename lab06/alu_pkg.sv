@@ -55,12 +55,21 @@ package alu_pkg;
 		return crc;
 		
 	endfunction
-		
-	`include "random_command_transaction.svh"
-	`include "minmax_command_transaction.svh"
+	
+	// sequence items
+	`include "sequence_item.svh"
+	    // used instead of the sequencer class
+	    typedef uvm_sequencer #(sequence_item) sequencer;
+	
+	// sequences
+	`include "random_sequence.svh"
+	`include "minmax_sequence.svh"
+	
+	// can be converted into sequence items
 	`include "result_transaction.svh"
+	
+	// testbench components (no agent here)
 	`include "coverage.svh"
-	`include "tester.svh"
 	`include "scoreboard.svh"
 	`include "driver.svh"
 	`include "command_monitor.svh"
@@ -68,10 +77,12 @@ package alu_pkg;
 	
 	`include "env.svh"
 	
+	// tests
+	`include "alu_base_test.svh"
 	`include "random_test.svh"
 	`include "minmax_test.svh"
 	
-	function result_transaction predict_results(random_command_transaction command);
+	function result_transaction predict_results(sequence_item command);
 		
 		result_transaction predicted;
 		bit [3:0] crc4;

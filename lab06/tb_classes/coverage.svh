@@ -1,4 +1,4 @@
-class coverage extends uvm_subscriber #(random_command_transaction);
+class coverage extends uvm_subscriber #(sequence_item);
 	
 	`uvm_component_utils(coverage)
 	
@@ -185,7 +185,7 @@ class coverage extends uvm_subscriber #(random_command_transaction);
 		zero_ones_cov = new();
 	endfunction : new
 	
-	function void write(random_command_transaction t);
+	function void write(sequence_item t);
 			
 		//predicted
 		result_transaction predicted;
