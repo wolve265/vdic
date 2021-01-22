@@ -6,8 +6,6 @@
 
 package kc_alu_pkg;
 
-	
-
 	// UVM macros
 	`include "uvm_macros.svh"
 	// UVM class library compiled in a package
@@ -29,7 +27,11 @@ package kc_alu_pkg;
 	`include "kc_alu_agent.svh"
 	// Environment
 	`include "kc_alu_env.svh"
-//	// Sequence library
-//	`include "kc_alu_seq_lib.svh"
+	// Sequence library
+	`include "kc_alu_seq_lib.svh"
+	// Base test
+	`include "kc_alu_base_test.svh"
+	// Example test
+	`include "kc_alu_example_test.svh"
 
 endpackage : kc_alu_pkg

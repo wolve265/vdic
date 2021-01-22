@@ -88,7 +88,7 @@ class kc_alu_monitor extends uvm_monitor;
 		forever begin
 			// FIXME Fill this place with the logic for collecting the data
 			// ...
-			// FIXME monitor - delete forever wait
+			// FIXME monitor - delete wait(0)
 			wait(0);
 			
 			`uvm_info(get_full_name(), $sformatf("Item collected :\n%s", m_collected_item.sprint()), UVM_MEDIUM)
