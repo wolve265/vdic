@@ -21,10 +21,10 @@ package kc_alu_pkg;
 	`include "kc_alu_monitor.svh"
 //	// Coverage Collector
 //	`include "kc_alu_coverage_collector.svh"
-//	// Driver
-//	`include "kc_alu_driver.svh"
-//	// Sequencer
-//	`include "kc_alu_sequencer.svh"
+	// Driver
+	`include "kc_alu_driver.svh"
+	// Sequencer
+	`include "kc_alu_sequencer.svh"
 	// Agent
 	`include "kc_alu_agent.svh"
 	// Environment
