@@ -15,10 +15,10 @@ package kc_alu_pkg;
 
 	// Configuration object
 	`include "kc_alu_config_obj.svh"
-//	// Sequence item
-//	`include "kc_alu_item.svh"
-//	// Monitor
-//	`include "kc_alu_monitor.svh"
+	// Sequence item
+	`include "kc_alu_item.svh"
+	// Monitor
+	`include "kc_alu_monitor.svh"
 //	// Coverage Collector
 //	`include "kc_alu_coverage_collector.svh"
 //	// Driver

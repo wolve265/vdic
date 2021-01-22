@@ -18,10 +18,10 @@ class kc_alu_agent extends uvm_agent;
 	// Configuration object
 	protected kc_alu_config_obj m_config_obj;
 	
-	// FIXME driver, seq, mon, collector in agent
+// FIXME driver, seq, collector in agent
 //	kc_alu_driver m_driver;
 //	kc_alu_sequencer m_sequencer;
-//	kc_alu_monitor m_monitor;
+	kc_alu_monitor m_monitor;
 //	kc_alu_coverage_collector m_coverage_collector;
 
 	// Add fields here
@@ -42,8 +42,8 @@ class kc_alu_agent extends uvm_agent;
 // FIXME agent build_phase
 //		// Propagate the configuration object to monitor
 //		uvm_config_db#(kc_alu_config_obj)::set(this, "m_monitor", "m_config_obj", m_config_obj);
-//		// Create the monitor
-//		m_monitor = kc_alu_monitor::type_id::create("m_monitor", this);
+		// Create the monitor
+		m_monitor = kc_alu_monitor::type_id::create("m_monitor", this);
 //
 //		if(m_config_obj.m_coverage_enable) begin
 //			m_coverage_collector = kc_alu_coverage_collector::type_id::create("m_coverage_collector", this);
@@ -61,7 +61,7 @@ class kc_alu_agent extends uvm_agent;
 	endfunction : build_phase
 
 	virtual function void connect_phase(uvm_phase phase);
-		// FIXME agent connect_phase
+// FIXME agent connect_phase
 //		if(m_config_obj.m_coverage_enable) begin
 //			m_monitor.m_collected_item_port.connect(m_coverage_collector.m_monitor_port);
 //		end
