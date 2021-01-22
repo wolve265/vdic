@@ -19,8 +19,8 @@ package kc_alu_pkg;
 	`include "kc_alu_item.svh"
 	// Monitor
 	`include "kc_alu_monitor.svh"
-//	// Coverage Collector
-//	`include "kc_alu_coverage_collector.svh"
+	// Coverage Collector
+	`include "kc_alu_coverage_collector.svh"
 	// Driver
 	`include "kc_alu_driver.svh"
 	// Sequencer
