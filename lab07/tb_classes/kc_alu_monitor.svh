@@ -86,13 +86,21 @@ class kc_alu_monitor extends uvm_monitor;
 
 	virtual protected task collect_items();
 		forever begin
-			// FIXME Fill this place with the logic for collecting the data
-			// ...
-			// FIXME monitor - delete wait(0)
-			wait(0);
+			status_t in_status;
+			// Reading serial input
+			m_kc_alu_vif.read_serial_in(in_status, m_collected_item.A, m_collected_item.B, m_collected_item.alu_op, m_collected_item.crc4);
+			// Checking if BAD_DATA occurs
+			if(in_status == ERROR)
+				m_collected_item.test_op = BAD_DATA;
+			else
+				m_collected_item.test_op = GOOD;
 			
 			`uvm_info(get_full_name(), $sformatf("Item collected :\n%s", m_collected_item.sprint()), UVM_MEDIUM)
-
+			
+			// Do not write collected item too fast - wait for sout_done
+			while(m_kc_alu_vif.read_sout_done != 1'b1)
+				@(posedge m_kc_alu_vif.clock);
+			
 			m_collected_item_port.write(m_collected_item);
 
 			if (m_config_obj.m_checks_enable)

@@ -102,8 +102,34 @@ class kc_alu_driver extends uvm_driver #(kc_alu_item);
 	endtask : reset_driver
 
 	virtual protected task drive_item(kc_alu_item item);
-		// FIXME Drive the item
+
+		bit [2:0] alu_bit;
+		alu_op_t bad_alu_op = UNKNOWN;
 		
+		$cast(alu_bit, item.alu_op);
+			item.crc4 = get_CRC4_d68({item.B, item.A, 1'b1, alu_bit});
+		
+		case(item.test_op)
+			BAD_CRC: begin : case_bad_crc
+				m_kc_alu_vif.send_serial(item.A,item.B,item.alu_op,item.crc4+1);
+			end
+			BAD_DATA : begin : case_bad_data
+				m_kc_alu_vif.send_serial_7frames(item.A,item.B,item.alu_op,item.crc4);
+			end
+			BAD_OP : begin : case_bad_op
+				$cast(alu_bit, bad_alu_op);
+				item.crc4 = get_CRC4_d68({item.B, item.A, 1'b1, alu_bit});
+				m_kc_alu_vif.send_serial(item.A,item.B,bad_alu_op,item.crc4);
+			end
+			RST: begin : case_rst
+				#1500;
+				m_kc_alu_vif.do_rst();
+			end
+			default: begin : case_good
+				m_kc_alu_vif.send_serial(item.A, item.B, item.alu_op, item.crc4);
+			end
+        endcase
+		#1500;
 	endtask : drive_item
 
 endclass : kc_alu_driver
