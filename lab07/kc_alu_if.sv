@@ -20,7 +20,7 @@ interface kc_alu_if();
 	import kc_alu_pkg::*;
 	
 	// Clock and reset signals
-	bit clock;
+	bit clock = 0;
 	bit reset = 1;
 
 	// Flags to enable/disable assertions and coverage
@@ -33,13 +33,10 @@ interface kc_alu_if();
 	bit sout;
 	bit read_sout_done = 0;
 	
-	initial begin : clk_gen
-	  	clock = 0;
-	  	forever begin : clk_frv
-	     	#10;
-	     	clock = ~clock;
-	  	end
-	end
+  	always begin : clk_gen
+     	#10ns;
+     	clock = ~clock;
+  	end
 	
 	initial begin : do_initial_rst
 		do_rst();

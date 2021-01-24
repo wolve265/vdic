@@ -49,8 +49,8 @@ separator=`perl -e "print \"#\" x $cols"`
 #------------------------------------------------------------------------------
 # simulator arguments #<<<
 XRUN_ARGS="\
-  -f mtm_dut.f \
-  -f mtm_tb.f \
+  -f dut.f \
+  -f tb.f \
   -v93 \
   +nowarnDSEM2009 \
   +nowarnDSEMEL \
@@ -65,6 +65,7 @@ XRUN_ARGS="\
   -covoverwrite \
   -covfile xrun_covfile.txt \
   -uvm \
+  -uvmhome /cad/XCELIUM1909/tools/methodology/UVM/CDNS-1.2/sv \
   +UVM_NO_RELNOTES \
   +UVM_VERBOSITY=MEDIUM
 "
