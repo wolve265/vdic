@@ -12,8 +12,8 @@
 
 #------------------------------------------------------------------------------
 # The list of tests; in GUI mode only the first test is started.
-# TESTS=(random_test);
-TESTS=(random_test minmax_test);
+# TESTS=(kc_alu_random_test);
+TESTS=(kc_alu_random_test kc_alu_minmax_test);
 #------------------------------------------------------------------------------
 # MAIN
 function main(){
