@@ -27,8 +27,6 @@ class kc_alu_coverage_collector extends uvm_component;
 	// Connection to the monitor
 	uvm_analysis_imp_collected_cmd#(kc_alu_cmd_item, kc_alu_coverage_collector) m_cmd_monitor_port;
 
-	// TODO: More items and connections can be added if needed
-
 	`uvm_component_utils(kc_alu_coverage_collector)
 	
 	// coverpoints declaration
@@ -225,15 +223,15 @@ class kc_alu_coverage_collector extends uvm_component;
 			`uvm_fatal("NOCONFIG", {"Config object must be set for: ", get_full_name(), ".m_config_obj"})
 	endfunction : build_phase
 
-	function void write_collected_item(kc_alu_cmd_item cmd);
-		m_collected_cmd = cmd;
+	function void write_collected_cmd(kc_alu_cmd_item cmd);
+		
+		kc_alu_result_item predicted;		
+		m_collected_cmd = cmd;		
 		
 		if(m_collected_cmd.test_op == RST) begin
 			cp_rst_before = 1'b1;
 		end
 		else begin : not_rst
-		
-			// FIXME coverage - add predict_result function
 			
 			predicted = predict_results(m_collected_cmd);
 			
@@ -267,7 +265,7 @@ class kc_alu_coverage_collector extends uvm_component;
 			cp_rst_before = 1'b0;
 			
 		end : not_rst
- 	endfunction : write_collected_item
+	endfunction : write_collected_cmd
 
 endclass : kc_alu_coverage_collector
 

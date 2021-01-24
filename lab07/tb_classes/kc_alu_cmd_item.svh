@@ -18,8 +18,6 @@ class  kc_alu_cmd_item extends uvm_sequence_item;
 	// This bit should be set when you want all the fields to be
 	// constrained to some default values or ranges at randomization
 	rand bit default_values;
-
-	// Declare fields here
 	
 	rand bit [31:0] A;
 	rand bit [31:0] B;

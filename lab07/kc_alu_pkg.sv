@@ -66,8 +66,10 @@ package kc_alu_pkg;
 	
 	// Configuration object
 	`include "kc_alu_config_obj.svh"
-	// Sequence command item
+	// Command item
 	`include "kc_alu_cmd_item.svh"
+	// Result item
+	`include "kc_alu_result_item.svh"
 	// Command monitor
 	`include "kc_alu_monitor.svh"
 	// Coverage Collector
@@ -86,5 +88,80 @@ package kc_alu_pkg;
 	`include "kc_alu_base_test.svh"
 	// Example test
 	`include "kc_alu_example_test.svh"
+	
+	function automatic kc_alu_result_item predict_results(kc_alu_cmd_item cmd);
+		
+		kc_alu_result_item predicted;
+		bit [3:0] crc4;
+		bit [2:0] alu_bit;
+		
+		predicted = new("predicted");
+		predicted.alu_status = OK;
+		predicted.C = '0;
+		predicted.flags = '0;
+		predicted.crc3 = '0;
+		predicted.err_flags = '0;
+		predicted.parity = '0;
+		crc4 = '0;
+				
+		if(cmd.test_op == BAD_DATA) begin : invalid_data
+			predicted.alu_status = ERROR;
+			predicted.err_flags = 6'b100100;
+			predicted.parity = 1'b1;
+		end
+		else begin : valid_data
+			
+			case(cmd.alu_op)
+				AND: begin : and_op
+					predicted.C = cmd.B&cmd.A;
+					predicted.flags[0] = predicted.C[31];//negative
+					predicted.flags[1] = (predicted.C == 0);//zero
+					predicted.flags[2] = 0;//overflow
+					predicted.flags[3] = 0;//carry
+					predicted.crc3 = get_CRC3_d37({predicted.C, 1'b0, predicted.flags});
+					
+				end
+				OR: begin : or_op
+					predicted.C = cmd.B|cmd.A;
+					predicted.flags[0] = predicted.C[31];//negative
+					predicted.flags[1] = (predicted.C == 0);//zero
+					predicted.flags[2] = 0;//overflow
+					predicted.flags[3] = 0;//carry
+					predicted.crc3 = get_CRC3_d37({predicted.C, 1'b0, predicted.flags});
+				end
+				ADD: begin : add_op
+					{predicted.flags[3],predicted.C} = cmd.B+cmd.A;
+					predicted.flags[0] = predicted.C[31];//negative
+					predicted.flags[1] = (predicted.C == 0);//zero
+					predicted.flags[2] = ~(cmd.A[31] ^ cmd.B[31] ^ 1'b0) && (cmd.A[31] ^ predicted.C[31]);//overflow
+					predicted.crc3 = get_CRC3_d37({predicted.C, 1'b0, predicted.flags});
+				end
+				SUB: begin : sub_op
+					{predicted.flags[3],predicted.C} = cmd.B-cmd.A;
+					predicted.flags[0] = predicted.C[31];//negative
+					predicted.flags[1] = (predicted.C == 0);//zero
+					predicted.flags[2] = (((~predicted.C[31]) && (~cmd.A[31]) && cmd.B[31]) || (predicted.C[31] && cmd.A[31] && (~cmd.B[31])));//overflow
+					predicted.crc3 = get_CRC3_d37({predicted.C, 1'b0, predicted.flags});
+				end
+				UNKNOWN: begin: invalid_op
+					predicted.alu_status = ERROR;
+					predicted.err_flags = 6'b001001;
+					predicted.parity = 1'b1;
+				end
+			endcase // case(cmd.alu_op)
+			
+			$cast(alu_bit, cmd.alu_op);
+			crc4 = get_CRC4_d68({cmd.B, cmd.A, 1'b1, alu_bit});
+			if(cmd.crc4 != crc4) begin : invalid_crc
+				predicted.C = '0;
+				predicted.flags = '0;
+				predicted.crc3 = '0;
+				predicted.alu_status = ERROR;
+				predicted.err_flags = 6'b010010;
+				predicted.parity = 1'b1;
+			end : invalid_crc
+		end : valid_data
+		return predicted;
+	endfunction : predict_results
 
 endpackage : kc_alu_pkg
