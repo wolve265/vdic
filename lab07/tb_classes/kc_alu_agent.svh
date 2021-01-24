@@ -61,7 +61,7 @@ class kc_alu_agent extends uvm_agent;
 	virtual function void connect_phase(uvm_phase phase);
 
 		if(m_config_obj.m_coverage_enable) begin
-			m_monitor.m_collected_item_port.connect(m_coverage_collector.m_monitor_port);
+			m_monitor.m_collected_item_port.connect(m_coverage_collector.m_cmd_monitor_port);
 		end
 
 		if(m_config_obj.m_is_active == UVM_ACTIVE) begin

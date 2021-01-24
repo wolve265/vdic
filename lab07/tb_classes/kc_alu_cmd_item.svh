@@ -4,16 +4,16 @@
 * uvc_company = kc, uvc_name = alu
 *******************************************************************************/
 
-`ifndef IFNDEF_GUARD_kc_alu_item
-`define IFNDEF_GUARD_kc_alu_item
+`ifndef IFNDEF_GUARD_kc_alu_cmd_item
+`define IFNDEF_GUARD_kc_alu_cmd_item
 
 //------------------------------------------------------------------------------
 //
-// CLASS: kc_alu_item
+// CLASS: kc_alu_cmd_item
 //
 //------------------------------------------------------------------------------
 
-class  kc_alu_item extends uvm_sequence_item;
+class  kc_alu_cmd_item extends uvm_sequence_item;
 
 	// This bit should be set when you want all the fields to be
 	// constrained to some default values or ranges at randomization
@@ -39,7 +39,7 @@ class  kc_alu_item extends uvm_sequence_item;
 	
 	constraint test { test_op dist {GOOD:=5, RST:=2, BAD_OP:=1, BAD_CRC:=1, BAD_DATA:=1}; }
 
-	`uvm_object_utils_begin(kc_alu_item)
+	`uvm_object_utils_begin(kc_alu_cmd_item)
 		`uvm_field_int(A, UVM_ALL_ON)
 		`uvm_field_int(B, UVM_ALL_ON)
 		`uvm_field_enum(alu_op_t, alu_op, UVM_ALL_ON)
@@ -47,30 +47,30 @@ class  kc_alu_item extends uvm_sequence_item;
 		`uvm_field_int(crc4, UVM_ALL_ON)
 	`uvm_object_utils_end
 
-	function new (string name = "kc_alu_item");
+	function new (string name = "kc_alu_cmd_item");
 		super.new(name);
 	endfunction : new
 
-//	// UVM field macros don't work with unions and structs, you may have to override kc_alu_item.do_copy().
+//	// UVM field macros don't work with unions and structs, you may have to override kc_alu_cmd_item.do_copy().
 //	virtual function void do_copy(uvm_object rhs);
 //		super.do_copy(rhs);
 //	endfunction : do_copy
 //
-//	// UVM field macros don't work with unions and structs, you may have to override kc_alu_item.do_pack().
+//	// UVM field macros don't work with unions and structs, you may have to override kc_alu_cmd_item.do_pack().
 //	virtual function void do_pack(uvm_packer packer);
 //		super.do_pack(packer);
 //	endfunction : do_pack
 //
-//	// UVM field macros don't work with unions and structs, you may have to override kc_alu_item.do_unpack().
+//	// UVM field macros don't work with unions and structs, you may have to override kc_alu_cmd_item.do_unpack().
 //	virtual function void do_unpack(uvm_packer packer);
 //		super.do_unpack(packer);
 //	endfunction : do_unpack
 //
-//	// UVM field macros don't work with unions and structs, you may have to override kc_alu_item.do_print().
+//	// UVM field macros don't work with unions and structs, you may have to override kc_alu_cmd_item.do_print().
 //	virtual function void do_print(uvm_printer printer);
 //		super.do_print(printer);
 //	endfunction : do_print
 
-endclass :  kc_alu_item
+endclass :  kc_alu_cmd_item
 
-`endif // IFNDEF_GUARD_kc_alu_item
+`endif // IFNDEF_GUARD_kc_alu_cmd_item

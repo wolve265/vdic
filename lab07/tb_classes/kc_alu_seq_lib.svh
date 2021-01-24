@@ -13,7 +13,7 @@
 //
 //------------------------------------------------------------------------------
 
-virtual class kc_alu_base_sequence extends uvm_sequence#(kc_alu_item);
+virtual class kc_alu_base_sequence extends uvm_sequence#(kc_alu_cmd_item);
 	
 	`uvm_declare_p_sequencer(kc_alu_sequencer)
 

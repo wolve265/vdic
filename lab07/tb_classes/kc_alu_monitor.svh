@@ -22,10 +22,10 @@ class kc_alu_monitor extends uvm_monitor;
 	protected kc_alu_config_obj m_config_obj;
 
 	// Collected item
-	protected kc_alu_item m_collected_item;
+	protected kc_alu_cmd_item m_collected_item;
 
 	// Collected item is broadcast on this port
-	uvm_analysis_port #(kc_alu_item) m_collected_item_port;
+	uvm_analysis_port #(kc_alu_cmd_item) m_collected_item_port;
 
 	`uvm_component_utils(kc_alu_monitor)
 
@@ -33,7 +33,7 @@ class kc_alu_monitor extends uvm_monitor;
 		super.new(name, parent);
 
 		// Allocate collected_item.
-		m_collected_item = kc_alu_item::type_id::create("m_collected_item", this);
+		m_collected_item = kc_alu_cmd_item::type_id::create("m_collected_item", this);
 
 		// Allocate collected_item_port.
 		m_collected_item_port = new("m_collected_item_port", this);

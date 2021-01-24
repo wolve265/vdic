@@ -13,7 +13,7 @@
 //
 //------------------------------------------------------------------------------
 
-class kc_alu_sequencer extends uvm_sequencer #(kc_alu_item);
+class kc_alu_sequencer extends uvm_sequencer #(kc_alu_cmd_item);
 	
 	`uvm_component_utils(kc_alu_sequencer)
 
