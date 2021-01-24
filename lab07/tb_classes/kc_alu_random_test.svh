@@ -4,22 +4,22 @@
 * uvc_company = kc, uvc_name = alu
 *******************************************************************************/
 
-`ifndef IFNDEF_GUARD_kc_alu_example_test
-`define IFNDEF_GUARD_kc_alu_example_test
+`ifndef IFNDEF_GUARD_kc_alu_random_test
+`define IFNDEF_GUARD_kc_alu_random_test
 
-class  kc_alu_example_test extends kc_alu_base_test;
+class  kc_alu_random_test extends kc_alu_base_test;
 
-	`uvm_component_utils(kc_alu_example_test)
+	`uvm_component_utils(kc_alu_random_test)
 
-	function new(string name = "kc_alu_example_test", uvm_component parent);
+	function new(string name = "kc_alu_random_test", uvm_component parent);
 		super.new(name, parent);
 	endfunction: new
 
 	virtual function void build_phase(uvm_phase phase);
 		uvm_config_db#(uvm_object_wrapper)::set(this,
 			"m_env.m_kc_alu_agent.m_sequencer.run_phase",
-			"default_sequence",
-			kc_alu_example_sequence::type_id::get());
+			"random_sequence",
+			kc_alu_random_sequence::type_id::get());
 
        	// Create the env
 		super.build_phase(phase);
@@ -45,4 +45,4 @@ endclass
 //
 //endclass : default_sequence_class
 
-`endif // IFNDEF_GUARD_kc_alu_example_test
+`endif // IFNDEF_GUARD_kc_alu_random_test

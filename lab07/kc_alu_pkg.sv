@@ -86,8 +86,10 @@ package kc_alu_pkg;
 	`include "kc_alu_seq_lib.svh"
 	// Base test
 	`include "kc_alu_base_test.svh"
-	// Example test
-	`include "kc_alu_example_test.svh"
+	// Random test
+	`include "kc_alu_random_test.svh"
+	// Min-Max test
+	`include "kc_alu_minmax_test.svh"
 	
 	function automatic kc_alu_result_item predict_results(kc_alu_cmd_item cmd);
 		
