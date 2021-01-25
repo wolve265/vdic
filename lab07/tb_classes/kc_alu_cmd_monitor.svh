@@ -44,7 +44,7 @@ class kc_alu_cmd_monitor extends kc_alu_base_monitor;
 			else
 				m_collected_item.test_op = GOOD;
 			
-			`uvm_info(get_full_name(), $sformatf("Item collected :\n%s", m_collected_item.sprint()), UVM_MEDIUM)
+			`uvm_info(get_full_name(), $sformatf("Item collected :\n%s", m_collected_item.sprint()), UVM_NONE)
 			
 			// Do not write collected item too fast - wait for sout_done
 			while(m_kc_alu_vif.read_sout_done != 1'b1)

@@ -21,6 +21,7 @@ class kc_alu_agent extends uvm_agent;
 	kc_alu_driver m_driver;
 	kc_alu_sequencer m_sequencer;
 	kc_alu_cmd_monitor m_cmd_monitor;
+	kc_alu_result_monitor m_result_monitor;
 	kc_alu_coverage_collector m_coverage_collector;
 
 	// Add fields here
@@ -42,6 +43,7 @@ class kc_alu_agent extends uvm_agent;
 		uvm_config_db#(kc_alu_config_obj)::set(this, "m_cmd_monitor", "m_config_obj", m_config_obj);
 		// Create the monitor
 		m_cmd_monitor = kc_alu_cmd_monitor::type_id::create("m_cmd_monitor", this);
+		m_result_monitor = kc_alu_result_monitor::type_id::create("m_result_monitor", this);
 
 		if(m_config_obj.m_coverage_enable) begin
 			m_coverage_collector = kc_alu_coverage_collector::type_id::create("m_coverage_collector", this);
