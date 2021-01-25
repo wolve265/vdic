@@ -70,8 +70,12 @@ package kc_alu_pkg;
 	`include "kc_alu_cmd_item.svh"
 	// Result item
 	`include "kc_alu_result_item.svh"
+	// Base monitor
+	`include "kc_alu_base_monitor.svh"
 	// Command monitor
-	`include "kc_alu_monitor.svh"
+	`include "kc_alu_cmd_monitor.svh"
+	// Result monitor
+	`include "kc_alu_result_monitor.svh"
 	// Coverage Collector
 	`include "kc_alu_coverage_collector.svh"
 	// Driver

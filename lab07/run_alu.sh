@@ -67,7 +67,7 @@ XRUN_ARGS="\
   -uvm \
   -uvmhome /cad/XCELIUM1909/tools/methodology/UVM/CDNS-1.2/sv \
   +UVM_NO_RELNOTES \
-  +UVM_VERBOSITY=UVM_MEDIUM
+  +UVM_VERBOSITY=UVM_LOW
 "
 #>>>
 #------------------------------------------------------------------------------
