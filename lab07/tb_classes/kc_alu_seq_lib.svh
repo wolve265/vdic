@@ -62,8 +62,9 @@ class kc_alu_random_sequence extends kc_alu_base_sequence;
 	endfunction : new
 
 	virtual task body();
+		// HINT Do not forget to reset the dut
 		
-		// Do reset for safety reasons
+		// dut reset first
 		`uvm_do_with(req, {test_op == RST;})
 		
 		repeat(1000) begin : random_loop
@@ -86,13 +87,14 @@ class kc_alu_minmax_sequence extends kc_alu_base_sequence;
 	endfunction : new
 
 	virtual task body();
+		// HINT Do not forget to reset the dut
 		
-		// Do reset for safety reasons
+		// dut reset first
 		`uvm_do_with(req, {test_op == RST;})
 		
 		repeat(1000) begin : random_loop
- 			`uvm_do_with(req, {A dist {32'h00_00_00_00:=1, [32'h00_00_00_01 : 32'hFF_FF_FF_FE]:/1, 32'hFF_FF_FF_FF:=1};
-	           					   B dist {32'h00_00_00_00:=1, [32'h00_00_00_01 : 32'hFF_FF_FF_FE]:/1, 32'hFF_FF_FF_FF:=1};})
+			`uvm_do_with(req, {A dist {32'h00_00_00_00:=1, [32'h00_00_00_01 : 32'hFF_FF_FF_FE]:/1, 32'hFF_FF_FF_FF:=1};
+	           				   B dist {32'h00_00_00_00:=1, [32'h00_00_00_01 : 32'hFF_FF_FF_FE]:/1, 32'hFF_FF_FF_FF:=1};})
 		end : random_loop
 		
 //		get_response(rsp);

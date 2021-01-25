@@ -18,7 +18,7 @@ class  kc_alu_random_test extends kc_alu_base_test;
 	virtual function void build_phase(uvm_phase phase);
 		uvm_config_db#(uvm_object_wrapper)::set(this,
 			"m_env.m_kc_alu_agent.m_sequencer.run_phase",
-			"random_sequence",
+			"default_sequence",
 			kc_alu_random_sequence::type_id::get());
 
        	// Create the env

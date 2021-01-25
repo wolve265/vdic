@@ -11,16 +11,20 @@ module alu_tb_top;
 
 	// Import the UVC that we have implemented
 	import kc_alu_pkg::*;
-
+	
+	// Clock and reset signals
+	reg clock;
+	reg reset;
+	
 	// The interface
-	kc_alu_if vif();
-
+	kc_alu_if vif(clock, reset);
+	
 	// DUT
 	mtm_Alu u_mtm_Alu (
-		.clk 	(vif.clock),  	// posedge active clock
-		.rst_n 	(vif.reset),	// synchronous reset active low
-		.sin 	(vif.sin),	// serial data input
-		.sout 	(vif.sout)	// serial data output
+		.clk 	(clock),  			// posedge active clock
+		.rst_n 	(vif.reset_dut),	// synchronous reset active low
+		.sin 	(vif.sin),			// serial data input
+		.sout 	(vif.sout)			// serial data output
 	);
 
 	initial begin
@@ -29,4 +33,17 @@ module alu_tb_top;
 		// Start the test
 		run_test();
 	end
+	
+	// Generate clock
+	always
+		#10 clock=~clock;
+
+	// Generate reset
+	initial begin
+		reset <= 1'b1;
+		clock <= 1'b1;
+		#21 reset <= 1'b0;
+		#51 reset <= 1'b1;
+	end
+	
 endmodule

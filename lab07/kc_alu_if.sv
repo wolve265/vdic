@@ -13,42 +13,34 @@
 // Just in case you need them
 `include "uvm_macros.svh"
 
-interface kc_alu_if();
+interface kc_alu_if(clock, reset);
 
 	// Just in case you need it
 	import uvm_pkg::*;
 	import kc_alu_pkg::*;
 	
 	// Clock and reset signals
-	bit clock = 0;
-	bit reset = 1;
+	input clock;
+	input reset;
 
 	// Flags to enable/disable assertions and coverage
 	bit checks_enable=1;
 	bit coverage_enable=1;
 
-	// Interface signals
+	// Interface signals - DUT
 	
+	bit reset_dut = 1;
 	bit sin = 1;
 	bit sout;
-	bit read_sout_done = 0;
-	
-  	always begin : clk_gen
-     	#10ns;
-     	clock = ~clock;
-  	end
-	
-	initial begin : do_initial_rst
-		do_rst();
-	end
+	bit read_sout_done = 1;
 	
 	// Interface tasks
 	
-	task do_rst();
+	task do_rst_dut();
 		@(negedge clock);
-		reset = 1'b0;
+		reset_dut = 1'b0;
 		@(negedge clock);
-		reset = 1'b1;
+		reset_dut = 1'b1;
 	endtask
 	
 	task read_serial_in(

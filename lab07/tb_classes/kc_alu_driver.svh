@@ -102,7 +102,7 @@ class kc_alu_driver extends uvm_driver #(kc_alu_cmd_item);
 	endtask : reset_driver
 
 	virtual protected task drive_item(kc_alu_cmd_item cmd);
-
+		
 		bit [2:0] alu_bit;
 		alu_op_t bad_alu_op = UNKNOWN;
 		
@@ -123,7 +123,7 @@ class kc_alu_driver extends uvm_driver #(kc_alu_cmd_item);
 			end
 			RST: begin : case_rst
 				#1500;
-				m_kc_alu_vif.do_rst();
+				m_kc_alu_vif.do_rst_dut();
 			end
 			default: begin : case_good
 				m_kc_alu_vif.send_serial(cmd.A, cmd.B, cmd.alu_op, cmd.crc4);

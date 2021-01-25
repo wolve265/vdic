@@ -34,7 +34,6 @@ class kc_alu_coverage_collector extends uvm_component;
 	protected test_op_t cp_test_op;
 	protected bit[31:0] cp_A;
 	protected bit[31:0] cp_B;
-	protected bit cp_rst_before = 0;
 	protected bit cp_carry;
 	protected bit cp_overflow;
 	protected bit cp_zero;
@@ -45,11 +44,6 @@ class kc_alu_coverage_collector extends uvm_component;
 	covergroup op_cov;
 		
 		option.name = "cg_op_cov";
-		
-		rst_before_op: coverpoint cp_rst_before {
-			bins false = {1'b0};
-			bins true = {1'b1};		
-		}
 		
 		alu_ops: coverpoint cp_alu_op {
 			bins and_op = {AND};
@@ -78,14 +72,6 @@ class kc_alu_coverage_collector extends uvm_component;
 			bins A2_or2_op  = binsof(alu_ops.or_op)  && binsof(test_ops.good_good);
 			bins A2_add2_op = binsof(alu_ops.add_op) && binsof(test_ops.good_good);
 			bins A2_sub2_op = binsof(alu_ops.sub_op) && binsof(test_ops.good_good);
-		}
-		
-		rst_before_good_op: cross rst_before_op, alu_ops, test_ops {	
-			//A3 reset before all operations
-			bins A3_and_rst_op = binsof(alu_ops.and_op) && binsof(test_ops.good_op);
-			bins A3_or_rst_op  = binsof(alu_ops.or_op)  && binsof(test_ops.good_op);
-			bins A3_add_rst_op = binsof(alu_ops.add_op) && binsof(test_ops.good_op);
-			bins A3_sub_rst_op = binsof(alu_ops.sub_op) && binsof(test_ops.good_op);
 		}
 		
 		c: coverpoint cp_carry {
@@ -227,44 +213,37 @@ class kc_alu_coverage_collector extends uvm_component;
 		
 		kc_alu_result_item predicted;		
 		m_collected_cmd = cmd;		
+			
+		predicted = predict_results(m_collected_cmd);
 		
-		if(m_collected_cmd.test_op == RST) begin
-			cp_rst_before = 1'b1;
-		end
-		else begin : not_rst
-			
-			predicted = predict_results(m_collected_cmd);
-			
-			//$display({"COVERAGE ", predicted.convert2string()});
-			
-			cp_A = m_collected_cmd.A;
-			cp_B = m_collected_cmd.B;
-			cp_alu_op = m_collected_cmd.alu_op;
-			cp_test_op = m_collected_cmd.test_op;
-			cp_negative = predicted.flags[0];
-			cp_zero = predicted.flags[1];
-			cp_overflow = predicted.flags[2];
-			cp_carry = predicted.flags[3];
-			
-			if(predicted.err_flags[5] == 1'b1) begin : invalid_data
-				cp_test_op = BAD_DATA;
-			end : invalid_data
-			else if(predicted.err_flags[4] == 1'b1) begin : invalid_crc
-				cp_test_op = BAD_CRC;
-			end : invalid_crc
-			else if(predicted.err_flags[3] == 1'b1) begin : invalid_op
-				cp_test_op = BAD_OP;
-			end : invalid_op
-			else begin : valid_data
-				cp_test_op = GOOD;
-			end : valid_data
-			
-			error_cov.sample();
-			op_cov.sample();
-			zero_ones_cov.sample();
-			cp_rst_before = 1'b0;
-			
-		end : not_rst
+		//$display({"COVERAGE ", predicted.convert2string()});
+		
+		cp_A = m_collected_cmd.A;
+		cp_B = m_collected_cmd.B;
+		cp_alu_op = m_collected_cmd.alu_op;
+		cp_test_op = m_collected_cmd.test_op;
+		cp_negative = predicted.flags[0];
+		cp_zero = predicted.flags[1];
+		cp_overflow = predicted.flags[2];
+		cp_carry = predicted.flags[3];
+		
+		if(predicted.err_flags[5] == 1'b1) begin : invalid_data
+			cp_test_op = BAD_DATA;
+		end : invalid_data
+		else if(predicted.err_flags[4] == 1'b1) begin : invalid_crc
+			cp_test_op = BAD_CRC;
+		end : invalid_crc
+		else if(predicted.err_flags[3] == 1'b1) begin : invalid_op
+			cp_test_op = BAD_OP;
+		end : invalid_op
+		else begin : valid_data
+			cp_test_op = GOOD;
+		end : valid_data
+		
+		error_cov.sample();
+		op_cov.sample();
+		zero_ones_cov.sample();
+
 	endfunction : write_collected_cmd
 
 endclass : kc_alu_coverage_collector
