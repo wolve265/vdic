@@ -20,6 +20,7 @@ class kc_alu_agent extends uvm_agent;
 	
 	kc_alu_driver m_driver;
 	kc_alu_sequencer m_sequencer;
+	kc_alu_scoreboard m_scoreboard;
 	kc_alu_cmd_monitor m_cmd_monitor;
 	kc_alu_result_monitor m_result_monitor;
 	kc_alu_coverage_collector m_coverage_collector;
@@ -48,6 +49,10 @@ class kc_alu_agent extends uvm_agent;
 		if(m_config_obj.m_coverage_enable) begin
 			m_coverage_collector = kc_alu_coverage_collector::type_id::create("m_coverage_collector", this);
 		end
+		
+		if(m_config_obj.m_checks_enable) begin
+			m_scoreboard = kc_alu_scoreboard::type_id::create("m_scoreboard", this);
+		end
 
 		if(m_config_obj.m_is_active == UVM_ACTIVE) begin
 			// Propagate the configuration object to driver
@@ -57,6 +62,7 @@ class kc_alu_agent extends uvm_agent;
 
 			// Create the sequencer
 			m_sequencer = kc_alu_sequencer::type_id::create("m_sequencer", this);
+			
 		end
 	endfunction : build_phase
 
@@ -64,6 +70,11 @@ class kc_alu_agent extends uvm_agent;
 
 		if(m_config_obj.m_coverage_enable) begin
 			m_cmd_monitor.m_collected_item_port.connect(m_coverage_collector.m_cmd_monitor_port);
+		end
+		
+		if(m_config_obj.m_checks_enable) begin
+			m_cmd_monitor.m_collected_item_port.connect(m_scoreboard.m_cmd_monitor_port);
+			m_result_monitor.m_collected_item_port.connect(m_scoreboard.m_result_monitor_port);
 		end
 
 		if(m_config_obj.m_is_active == UVM_ACTIVE) begin

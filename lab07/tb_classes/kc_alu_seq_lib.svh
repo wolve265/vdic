@@ -67,7 +67,7 @@ class kc_alu_random_sequence extends kc_alu_base_sequence;
 		// dut reset first
 		`uvm_do_with(req, {test_op == RST;})
 		
-		repeat(1000) begin : random_loop
+		repeat(2000) begin : random_loop
 			`uvm_rand_send(req)
 		end : random_loop
 		

@@ -36,12 +36,44 @@ interface kc_alu_if(clock, reset);
 	
 	// Interface tasks
 	
+	initial begin : initial_dut_reset
+		do_rst_dut();
+	end
+	
 	task do_rst_dut();
 		@(negedge clock);
 		reset_dut = 1'b0;
 		@(negedge clock);
 		reset_dut = 1'b1;
 	endtask
+	
+	task get_cmd(
+		output test_op_t test_op,
+		output bit [31:0] A,
+		output bit [31:0] B,
+		output alu_op_t alu_op,
+		output bit [3:0] crc4
+		);
+		
+		fork
+			begin
+				@(negedge reset_dut)
+				test_op = RST;
+			end
+			
+			begin
+				status_t in_status;
+				
+				read_serial_in(in_status, A, B, alu_op, crc4);
+				// Checking if BAD_DATA occurs
+				if(in_status == ERROR)
+					test_op = BAD_DATA;
+				else
+					test_op = GOOD;
+			end
+		join_any
+		
+	endtask 
 	
 	task read_serial_in(
 		output status_t in_status,

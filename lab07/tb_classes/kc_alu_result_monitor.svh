@@ -34,8 +34,6 @@ class kc_alu_result_monitor extends kc_alu_base_monitor;
 	endfunction : new
 
 	virtual protected task collect_items();
-		@(negedge m_kc_alu_vif.clock);
-		@(negedge m_kc_alu_vif.clock);
 		forever begin
 			
 			m_kc_alu_vif.read_sout_done = 1'b0;
@@ -46,7 +44,7 @@ class kc_alu_result_monitor extends kc_alu_base_monitor;
 			@(negedge m_kc_alu_vif.clock);
 			@(negedge m_kc_alu_vif.clock);
 			
-			`uvm_info(get_full_name(), $sformatf("Item collected :\n%s", m_collected_item.sprint()), UVM_NONE)
+			`uvm_info(get_full_name(), $sformatf("Item collected :\n%s", m_collected_item.sprint()), UVM_MEDIUM)
 			
 			m_collected_item_port.write(m_collected_item);
 

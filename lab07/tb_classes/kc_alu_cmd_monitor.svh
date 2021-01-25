@@ -35,16 +35,10 @@ class kc_alu_cmd_monitor extends kc_alu_base_monitor;
 
 	virtual protected task collect_items();
 		forever begin
-			status_t in_status;
-			// Reading serial input
-			m_kc_alu_vif.read_serial_in(in_status, m_collected_item.A, m_collected_item.B, m_collected_item.alu_op, m_collected_item.crc4);
-			// Checking if BAD_DATA occurs
-			if(in_status == ERROR)
-				m_collected_item.test_op = BAD_DATA;
-			else
-				m_collected_item.test_op = GOOD;
 			
-			`uvm_info(get_full_name(), $sformatf("Item collected :\n%s", m_collected_item.sprint()), UVM_NONE)
+			m_kc_alu_vif.get_cmd(m_collected_item.test_op, m_collected_item.A, m_collected_item.B, m_collected_item.alu_op, m_collected_item.crc4);
+						
+			`uvm_info(get_full_name(), $sformatf("Item collected :\n%s", m_collected_item.sprint()), UVM_MEDIUM)
 			
 			// Do not write collected item too fast - wait for sout_done
 			while(m_kc_alu_vif.read_sout_done != 1'b1)

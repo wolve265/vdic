@@ -82,6 +82,8 @@ package kc_alu_pkg;
 	`include "kc_alu_driver.svh"
 	// Sequencer
 	`include "kc_alu_sequencer.svh"
+	// Scoreboard
+	`include "kc_alu_scoreboard.svh"
 	// Agent
 	`include "kc_alu_agent.svh"
 	// Environment
