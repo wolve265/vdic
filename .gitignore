@@ -4,6 +4,7 @@
 *.err
 *.rpt
 *.key
+*.shm
 cov_work
 INCA_libs
 INCA_libs_gui
